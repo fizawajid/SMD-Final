@@ -1,3 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">finalproject</string>
+
+    <!-- Emergency Alert Screen -->
+    <string name="emergency_alert">Emergency Alert</string>
+    <string name="emergency_description">Send an immediate alert to your emergency contacts with your location and situation details.</string>
+    <string name="what_type_emergency">What type of Emergency?</string>
+
+    <!-- Emergency Types -->
+    <string name="personal_safety">Personal Safety</string>
+    <string name="personal_safety_desc">Crime, harassment or feeling unsafe</string>
+
+    <string name="travel_emergency">Travel Emergency</string>
+    <string name="travel_emergency_desc">Unsafe travel situation or location</string>
+
+    <string name="medical_emergency">Medical Emergency</string>
+    <string name="medical_emergency_desc">Health emergency or medical assistance needed</string>
+
+    <!-- Silent Mode -->
+    <string name="silent_mode">Silent Mode</string>
+    <string name="silent_mode_desc">Send alert without sound or vibration</string>
+
+    <!-- Emergency Contacts Screen -->
+    <string name="emergency_contacts">Emergency Contacts</string>
+    <string name="contacts_configured">5 contacts configured</string>
+    <string name="search_contacts">Search contacts...</string>
+    <string name="add_contact">+ Add Contact</string>
+    <string name="contacts_icon">Contacts</string>
+    <!-- Added contact names and their information -->
+    <string name="mom">Mom</string>
+    <string name="mom_phone">+1 (555) 123-4567</string>
+    <string name="mom_email">mom@email.com</string>
+
+    <string name="dad">Dad</string>
+    <string name="dad_phone">+1 (555) 123-4567</string>
+    <string name="dad_email">dad@email.com</string>
+
+    <string name="dr_marla">Dr. Marla</string>
+    <string name="marla_phone">+1 (555) 123-4567</string>
+    <string name="marla_email">marla@email.com</string>
+
+    <string name="jack">Jack</string>
+    <string name="jack_phone">+1 (555) 123-4567</string>
+    <string name="jack_email">jack@email.com</string>
+
+    <string name="alexa">Alexa</string>
+    <string name="alexa_phone">+1 (555) 123-4567</string>
+    <string name="alexa_email">alexa@email.com</string>
+
+    <!-- Priority Levels -->
+    <string name="high_priority">High Priority</string>
+    <string name="medium_priority">Medium Priority</string>
+    <string name="low_priority">Low Priority</string>
+
+    <!-- Contact Summary -->
+    <string name="contact_summary">Contact Summary</string>
+    <string name="contact_summary_desc">Overview of your emergency contact configuration</string>
+    <string name="high_count">2</string>
+    <string name="medium_count">2</string>
+    <string name="low_count">1</string>
+
+    <!-- General -->
+    <string name="back">Back</string>
+    <string name="warning">Warning</string>
+    <string name="menu">Menu</string>
 </resources>

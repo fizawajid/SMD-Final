@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#000000"
+    android:padding="16dp">
+
+    <!-- Header with Back Button and Title -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:marginBottom="24dp">
+
+        <ImageButton
+            android:id="@+id/btn_back"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackground"
+            android:contentDescription="@string/back"
+            android:src="@drawable/backarrow"
+            android:scaleType="centerInside" />
+
+    </LinearLayout>
+
+    <!-- Emergency Alert Title and Description -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:marginBottom="32dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:marginBottom="8dp">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_warning_alert"
+                android:contentDescription="@string/warning"
+                android:tint="#FF6B6B"
+                android:layout_marginRight="8dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/emergency_alert"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="#FFFFFF" />
+
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/emergency_description"
+            android:textSize="13sp"
+            android:textColor="#B0B0B0"
+            android:lineSpacingMultiplier="1.3" />
+
+    </LinearLayout>
+
+    <!-- What type of Emergency Header -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/what_type_emergency"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="#FFFFFF"
+        android:marginBottom="16dp" />
+
+    <!-- Emergency Type Cards -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="top">
+
+            <!-- Personal Safety Card -->
+            <FrameLayout
+                android:id="@+id/card_personal_safety"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/card_emergency_type"
+                android:padding="16dp"
+                android:layout_marginBottom="12dp"
+                android:foreground="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <ImageView
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:src="@drawable/ic_warning_alert"
+                        android:contentDescription="@string/personal_safety"
+                        android:tint="#FF6B6B"
+                        android:layout_marginRight="16dp"
+                        android:scaleType="centerInside" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/personal_safety"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:textColor="#FFFFFF"
+                            android:marginBottom="4dp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/personal_safety_desc"
+                            android:textSize="13sp"
+                            android:textColor="#B0B0B0" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </FrameLayout>
+
+            <!-- Travel Emergency Card -->
+            <FrameLayout
+                android:id="@+id/card_travel_emergency"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/card_emergency_type"
+                android:padding="16dp"
+                android:layout_marginBottom="12dp"
+                android:foreground="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <ImageView
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:src="@drawable/location"
+                        android:contentDescription="@string/travel_emergency"
+                        android:tint="#FFA500"
+                        android:layout_marginRight="16dp"
+                        android:scaleType="centerInside" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/travel_emergency"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:textColor="#FFFFFF"
+                            android:marginBottom="4dp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/travel_emergency_desc"
+                            android:textSize="13sp"
+                            android:textColor="#B0B0B0" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </FrameLayout>
+
+            <!-- Medical Emergency Card -->
+            <FrameLayout
+                android:id="@+id/card_medical_emergency"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/card_emergency_type"
+                android:padding="16dp"
+                android:layout_marginBottom="32dp"
+                android:foreground="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <ImageView
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:src="@drawable/ic_warning_alert"
+                        android:contentDescription="@string/medical_emergency"
+                        android:tint="#FF6B6B"
+                        android:layout_marginRight="16dp"
+                        android:scaleType="centerInside" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/medical_emergency"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:textColor="#FFFFFF"
+                            android:marginBottom="4dp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/medical_emergency_desc"
+                            android:textSize="13sp"
+                            android:textColor="#B0B0B0" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </FrameLayout>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+    <!-- Silent Mode Section -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="@drawable/card_emergency_type"
+        android:padding="16dp"
+        android:marginTop="16dp">
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_silent_mode"
+            android:contentDescription="@string/silent_mode"
+            android:tint="#FFFFFF"
+            android:layout_marginRight="16dp"
+            android:scaleType="centerInside" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/silent_mode"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#FFFFFF"
+                android:marginBottom="4dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/silent_mode_desc"
+                android:textSize="13sp"
+                android:textColor="#B0B0B0" />
+
+        </LinearLayout>
+
+        <Switch
+            android:id="@+id/toggle_silent_mode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:thumbTint="#00DD00"
+            android:trackTint="#333333" />
+
+    </LinearLayout>
+
+</LinearLayout>

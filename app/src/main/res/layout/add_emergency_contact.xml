@@ -1,0 +1,478 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#000000"
+    android:padding="16dp">
+
+    <!-- Header with back button and title -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:marginBottom="24dp">
+
+        <ImageButton
+            android:id="@+id/btn_back"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@drawable/ic_arrow_back"
+            android:background="?attr/selectableItemBackground"
+            android:scaleType="centerInside" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:marginStart="12dp">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_people_group"
+                    android:tint="#00FF00" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/add_emergency_contacts"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="#FFFFFF"
+                    android:marginStart="8dp" />
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/add_contact_description"
+                android:textSize="12sp"
+                android:textColor="#888888"
+                android:marginTop="4dp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- Scrollable content -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fadeScrollbars="false">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingEnd="4dp">
+
+            <!-- Basic Information Section -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/basic_information"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="#FFFFFF"
+                android:marginBottom="12dp" />
+
+            <!-- Full Name Input -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:marginBottom="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/full_name"
+                    android:textSize="12sp"
+                    android:textColor="#FFFFFF"
+                    android:textStyle="bold"
+                    android:marginBottom="6dp" />
+
+                <EditText
+                    android:id="@+id/et_full_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:background="@drawable/input_field_background"
+                    android:hint="@string/enter_full_name"
+                    android:textColor="#FFFFFF"
+                    android:textColorHint="#666666"
+                    android:textSize="14sp"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:inputType="text" />
+
+            </LinearLayout>
+
+            <!-- Relationship Dropdown -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:marginBottom="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/relationship"
+                    android:textSize="12sp"
+                    android:textColor="#FFFFFF"
+                    android:textStyle="bold"
+                    android:marginBottom="6dp" />
+
+                <Spinner
+                    android:id="@+id/spinner_relationship"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:background="@drawable/input_field_background"
+                    android:textAlignment="center" />
+
+            </LinearLayout>
+
+            <!-- Priority Level Dropdown -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:marginBottom="24dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/priority_level"
+                    android:textSize="12sp"
+                    android:textColor="#FFFFFF"
+                    android:textStyle="bold"
+                    android:marginBottom="6dp" />
+
+                <Spinner
+                    android:id="@+id/spinner_priority"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:background="@drawable/input_field_background"
+                    android:textAlignment="center" />
+
+            </LinearLayout>
+
+            <!-- Contact Information Section -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/contact_information"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="#FFFFFF"
+                android:marginBottom="12dp" />
+
+            <!-- Phone Number Input -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:marginBottom="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/phone_number"
+                    android:textSize="12sp"
+                    android:textColor="#FFFFFF"
+                    android:textStyle="bold"
+                    android:marginBottom="6dp" />
+
+                <EditText
+                    android:id="@+id/et_phone"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:background="@drawable/input_field_background"
+                    android:hint="@string/phone_placeholder"
+                    android:textColor="#FFFFFF"
+                    android:textColorHint="#666666"
+                    android:textSize="14sp"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:inputType="phone" />
+
+            </LinearLayout>
+
+            <!-- Email Input -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:marginBottom="24dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/email_address"
+                    android:textSize="12sp"
+                    android:textColor="#FFFFFF"
+                    android:textStyle="bold"
+                    android:marginBottom="6dp" />
+
+                <EditText
+                    android:id="@+id/et_email"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:background="@drawable/input_field_background"
+                    android:hint="@string/email_placeholder"
+                    android:textColor="#FFFFFF"
+                    android:textColorHint="#666666"
+                    android:textSize="14sp"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:inputType="emailAddress" />
+
+            </LinearLayout>
+
+            <!-- Contact Methods Section -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/contact_methods"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="#FFFFFF"
+                android:marginBottom="12dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/select_notification_methods"
+                android:textSize="12sp"
+                android:textColor="#888888"
+                android:marginBottom="12dp" />
+
+            <!-- SMS Checkbox -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/checkbox_item_background"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:marginBottom="8dp">
+
+                <CheckBox
+                    android:id="@+id/cb_sms"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:buttonTint="#00FF00" />
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_sms"
+                    android:tint="#00FF00"
+                    android:marginStart="12dp" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/sms_text_message"
+                    android:textSize="14sp"
+                    android:textColor="#FFFFFF"
+                    android:marginStart="12dp" />
+
+            </LinearLayout>
+
+            <!-- Phone Call Checkbox -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/checkbox_item_background"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:marginBottom="8dp">
+
+                <CheckBox
+                    android:id="@+id/cb_call"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:buttonTint="#00FF00" />
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_phone_call"
+                    android:tint="#00FF00"
+                    android:marginStart="12dp" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/phone_call"
+                    android:textSize="14sp"
+                    android:textColor="#FFFFFF"
+                    android:marginStart="12dp" />
+
+            </LinearLayout>
+
+            <!-- Email Checkbox -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/checkbox_item_background"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:marginBottom="24dp">
+
+                <CheckBox
+                    android:id="@+id/cb_email"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:buttonTint="#00FF00" />
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_email"
+                    android:tint="#00FF00"
+                    android:marginStart="12dp" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/email"
+                    android:textSize="14sp"
+                    android:textColor="#FFFFFF"
+                    android:marginStart="12dp" />
+
+            </LinearLayout>
+
+            <!-- Additional Information Section -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/additional_information"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="#FFFFFF"
+                android:marginBottom="12dp" />
+
+            <!-- Medical Information Input -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:marginBottom="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/medical_information"
+                    android:textSize="12sp"
+                    android:textColor="#FFFFFF"
+                    android:textStyle="bold"
+                    android:marginBottom="6dp" />
+
+                <EditText
+                    android:id="@+id/et_medical_info"
+                    android:layout_width="match_parent"
+                    android:layout_height="100dp"
+                    android:background="@drawable/input_field_background"
+                    android:hint="@string/medical_info_placeholder"
+                    android:textColor="#FFFFFF"
+                    android:textColorHint="#666666"
+                    android:textSize="14sp"
+                    android:padding="12dp"
+                    android:inputType="text|textMultiLine"
+                    android:gravity="top" />
+
+            </LinearLayout>
+
+            <!-- Notes Section -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:marginBottom="24dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/notes"
+                    android:textSize="12sp"
+                    android:textColor="#FFFFFF"
+                    android:textStyle="bold"
+                    android:marginBottom="6dp" />
+
+                <EditText
+                    android:id="@+id/et_notes"
+                    android:layout_width="match_parent"
+                    android:layout_height="100dp"
+                    android:background="@drawable/input_field_background"
+                    android:hint="@string/notes_placeholder"
+                    android:textColor="#FFFFFF"
+                    android:textColorHint="#666666"
+                    android:textSize="14sp"
+                    android:padding="12dp"
+                    android:inputType="text|textMultiLine"
+                    android:gravity="top" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+    <!-- Action Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:marginTop="16dp"
+        android:gap="12dp">
+
+        <Button
+            android:id="@+id/btn_cancel"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:text="@string/cancel"
+            android:background="@drawable/button_cancel"
+            android:textColor="#00FF00"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/btn_add_contact"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:text="@string/add_contact"
+            android:background="@drawable/button_add_contact_action"
+            android:textColor="#000000"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+</LinearLayout>
