@@ -1,20 +1,24 @@
-package com.example.smd_final
+package com.example.finalproject
 
+import android.content.Intent
 import android.os.Bundle
+import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 
 class otp : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_otp)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
+
+        // Find the verify button
+        val verifyButton = findViewById<TextView>(R.id.verify)
+
+        // When clicked, open Dashboard activity
+        verifyButton.setOnClickListener {
+            val intent = Intent(this, dashboard::class.java)
+            startActivity(intent)
         }
     }
 }

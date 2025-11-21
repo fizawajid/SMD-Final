@@ -108,9 +108,14 @@
     <string name="high_count">2</string>
     <string name="medium_count">2</string>
     <string name="low_count">1</string>
+    <string name="add_contact_description">Add a new contact</string>
 
     <!-- General -->
     <string name="back">Back</string>
     <string name="warning">Warning</string>
     <string name="menu">Menu</string>
+
+
+    <string name="select_notification_methods">Select notification methods</string>
+
 </resources>

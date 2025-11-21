@@ -11,15 +11,41 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Finalproject">
+
+        <!-- Launcher Activity -->
         <activity
-            android:name=".MainActivity"
+            android:name=".getstarted"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Create account (email) -->
+        <activity android:name=".createaccount_email" />
+
+        <!-- Create account (phone) -->
+        <activity android:name=".createaccount_phone" />
+
+        <!-- Sign in (email) -->
+        <activity android:name=".signin_email"/>
+
+
+        <!-- Dashboard -->
+
+        <activity android:name=".signin_phone" />
+        <activity android:name=".dashboard" />
+        <activity android:name=".travel_safety" />
+        <activity android:name=".personal_safety" />
+        <activity android:name=".gotosettings" />
+        <activity android:name=".emergency_type" />
+        <activity android:name=".add_emergency_contact" />
+
+        <activity android:name=".alerthistory" />
+        <activity android:name=".finishpage" />
+        <activity android:name=".otp"/>
+        <activity android:name=".emergency_contacts" />
     </application>
 
 </manifest>

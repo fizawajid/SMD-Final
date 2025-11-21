@@ -2,6 +2,7 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/black"
     android:padding="16dp">
 
@@ -22,7 +23,7 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:src="@drawable/back"
-                android:tint="@color/white"
+                app:tint="@color/white"
                 android:contentDescription="Back" />
 
             <TextView
@@ -261,7 +262,7 @@
                     android:layout_width="20dp"
                     android:layout_height="20dp"
                     android:src="@drawable/ic_setting_emergency"
-                    android:tint="@color/white"
+                    app:tint="@color/white"
                     android:contentDescription="Emergency" />
 
                 <TextView
@@ -439,7 +440,7 @@
                     android:layout_width="20dp"
                     android:layout_height="20dp"
                     android:src="@drawable/ic_help"
-                    android:tint="@color/white"
+                    app:tint="@color/white"
                     android:contentDescription="Help" />
 
                 <TextView
@@ -525,7 +526,7 @@
                     android:layout_width="20dp"
                     android:layout_height="20dp"
                     android:src="@drawable/ic_accactions"
-                    android:tint="@color/white"
+                    app:tint="@color/white"
                     android:contentDescription="Account" />
 
                 <TextView
@@ -561,7 +562,7 @@
                     android:layout_width="16dp"
                     android:layout_height="16dp"
                     android:src="@drawable/ic_signout"
-                    android:tint="@color/white"
+                    app:tint="@color/white"
                     android:contentDescription="Sign out" />
 
                 <TextView
@@ -587,7 +588,7 @@
                     android:layout_width="16dp"
                     android:layout_height="16dp"
                     android:src="@drawable/ic_delete"
-                    android:tint="#D32F2F"
+                    app:tint="#D32F2F"
                     android:contentDescription="Delete" />
 
                 <TextView

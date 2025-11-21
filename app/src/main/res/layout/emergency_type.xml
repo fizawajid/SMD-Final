@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:background="#000000"
     android:padding="16dp">
@@ -12,7 +13,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:marginBottom="24dp">
+        android:layout_marginBottom="24dp">
 
         <ImageButton
             android:id="@+id/btn_back"
@@ -30,21 +31,21 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:marginBottom="32dp">
+        android:layout_marginBottom="32dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:marginBottom="8dp">
+            android:layout_marginBottom="8dp">
 
             <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:src="@drawable/error"
                 android:contentDescription="@string/warning"
-                android:tint="#FF6B6B"
+                app:tint="#FF6B6B"
                 android:layout_marginRight="8dp" />
 
             <TextView
@@ -75,7 +76,7 @@
         android:textSize="16sp"
         android:textStyle="bold"
         android:textColor="#FFFFFF"
-        android:marginBottom="16dp" />
+        android:layout_marginBottom="16dp" />
 
     <!-- Emergency Type Cards -->
     <ScrollView
@@ -113,7 +114,7 @@
                         android:layout_height="32dp"
                         android:src="@drawable/error"
                         android:contentDescription="@string/personal_safety"
-                        android:tint="#FF6B6B"
+                        app:tint="#FF6B6B"
                         android:layout_marginRight="16dp"
                         android:scaleType="centerInside" />
 
@@ -130,7 +131,7 @@
                             android:textSize="16sp"
                             android:textStyle="bold"
                             android:textColor="#FFFFFF"
-                            android:marginBottom="4dp" />
+                            android:layout_marginBottom="4dp" />
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -168,7 +169,7 @@
                         android:layout_height="32dp"
                         android:src="@drawable/location"
                         android:contentDescription="@string/travel_emergency"
-                        android:tint="#FFA500"
+                        app:tint="#FFA500"
                         android:layout_marginRight="16dp"
                         android:scaleType="centerInside" />
 
@@ -185,7 +186,7 @@
                             android:textSize="16sp"
                             android:textStyle="bold"
                             android:textColor="#FFFFFF"
-                            android:marginBottom="4dp" />
+                            android:layout_marginBottom="4dp" />
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -223,7 +224,7 @@
                         android:layout_height="32dp"
                         android:src="@drawable/error"
                         android:contentDescription="@string/medical_emergency"
-                        android:tint="#FF6B6B"
+                        app:tint="#FF6B6B"
                         android:layout_marginRight="16dp"
                         android:scaleType="centerInside" />
 
@@ -240,7 +241,7 @@
                             android:textSize="16sp"
                             android:textStyle="bold"
                             android:textColor="#FFFFFF"
-                            android:marginBottom="4dp" />
+                            android:layout_marginBottom="4dp" />
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -267,14 +268,14 @@
         android:gravity="center_vertical"
         android:background="@drawable/card_emergency_type"
         android:padding="16dp"
-        android:marginTop="16dp">
+        android:layout_marginTop="16dp">
 
         <ImageView
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:src="@drawable/ic_silent_mode"
             android:contentDescription="@string/silent_mode"
-            android:tint="#FFFFFF"
+            app:tint="#FFFFFF"
             android:layout_marginRight="16dp"
             android:scaleType="centerInside" />
 
@@ -291,7 +292,7 @@
                 android:textSize="16sp"
                 android:textStyle="bold"
                 android:textColor="#FFFFFF"
-                android:marginBottom="4dp" />
+                android:layout_marginBottom="4dp" />
 
             <TextView
                 android:layout_width="wrap_content"

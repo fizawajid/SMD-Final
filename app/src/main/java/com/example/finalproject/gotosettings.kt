@@ -1,12 +1,15 @@
 package com.example.finalproject
 
+
 import android.os.Bundle
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 
-class alerthistory : AppCompatActivity() {
-
+class gotosettings : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_alerthistory) // your XML layout
+        enableEdgeToEdge()
+        setContentView(R.layout.activity_settings)
+
+        }
     }
-}
