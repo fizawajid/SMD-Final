@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:background="#000000"
     android:padding="16dp">
 
-    <!-- Header with back button and title -->
+    <!-- Header -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -40,17 +40,14 @@
                     android:layout_height="24dp"
                     android:src="@drawable/ic_contacts"
                     android:tint="#00FF00" />
-                    android:src="@drawable/people"
-                    app:tint="#00FF00" />
 
                 <TextView
                     android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:marginStart="8dp"
+                    android:layout_height="wrap_content"
                     android:text="@string/add_emergency_contacts"
                     android:textColor="#FFFFFF"
                     android:textSize="18sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
                     android:layout_marginStart="8dp" />
 
             </LinearLayout>
@@ -67,12 +64,11 @@
 
     </LinearLayout>
 
-    <!-- Scrollable content -->
+    <!-- ScrollView -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:fadeScrollbars="false">
+        android:layout_weight="1">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -80,7 +76,7 @@
             android:orientation="vertical"
             android:paddingEnd="4dp">
 
-            <!-- Basic Information Section -->
+            <!-- Basic Information Title -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -90,7 +86,7 @@
                 android:textColor="#FFFFFF"
                 android:layout_marginBottom="12dp" />
 
-            <!-- Full Name Input -->
+            <!-- Full Name -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -116,8 +112,7 @@
                     android:textColorHint="#666666"
                     android:textSize="14sp"
                     android:paddingStart="12dp"
-                    android:paddingEnd="12dp"
-                    android:inputType="text" />
+                    android:paddingEnd="12dp" />
 
             </LinearLayout>
 
@@ -141,12 +136,11 @@
                     android:id="@+id/spinner_relationship"
                     android:layout_width="match_parent"
                     android:layout_height="48dp"
-                    android:background="@drawable/input_field_background"
-                    android:textAlignment="center" />
+                    android:background="@drawable/input_field_background" />
 
             </LinearLayout>
 
-            <!-- Priority Level Dropdown -->
+            <!-- Priority Dropdown -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -166,12 +160,11 @@
                     android:id="@+id/spinner_priority"
                     android:layout_width="match_parent"
                     android:layout_height="48dp"
-                    android:background="@drawable/input_field_background"
-                    android:textAlignment="center" />
+                    android:background="@drawable/input_field_background" />
 
             </LinearLayout>
 
-            <!-- Contact Information Section -->
+            <!-- Contact Information -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -181,7 +174,7 @@
                 android:textColor="#FFFFFF"
                 android:layout_marginBottom="12dp" />
 
-            <!-- Phone Number Input -->
+            <!-- Phone -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -212,7 +205,7 @@
 
             </LinearLayout>
 
-            <!-- Email Input -->
+            <!-- Email -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -238,30 +231,11 @@
                     android:textColorHint="#666666"
                     android:textSize="14sp"
                     android:paddingStart="12dp"
-                    android:paddingEnd="12dp"
-                     />
+                    android:paddingEnd="12dp" />
 
             </LinearLayout>
 
-            <!-- Contact Methods Section -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/contact_methods"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                android:textColor="#FFFFFF"
-                android:layout_marginBottom="12dp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/select_communication_methods"
-                android:textSize="12sp"
-                android:textColor="#888888"
-                android:layout_marginBottom="12dp" />
-
-            <!-- SMS Checkbox -->
+            <!-- Contact Method: SMS -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
@@ -283,10 +257,8 @@
                     android:layout_width="20dp"
                     android:layout_height="20dp"
                     android:src="@drawable/ic_sms"
-                    android:tint="#FFFFFF"
-                    android:marginStart="12dp" />
-                    app:tint="#00FF00"
-                    android:layout_marginStart="12dp" />
+                    android:layout_marginStart="12dp"
+                    android:tint="#FFFFFF" />
 
                 <TextView
                     android:layout_width="0dp"
@@ -299,9 +271,7 @@
 
             </LinearLayout>
 
-            <!-- Repeat similar corrections for phone call and email sections -->
-            <!-- Ensure all android:margin* → android:layout_margin* -->
-            <!-- Phone Call Checkbox -->
+            <!-- Phone Call -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
@@ -310,7 +280,7 @@
                 android:background="@drawable/checkbox_item_background"
                 android:paddingStart="12dp"
                 android:paddingEnd="12dp"
-                android:marginBottom="8dp">
+                android:layout_marginBottom="8dp">
 
                 <CheckBox
                     android:id="@+id/cb_call"
@@ -323,8 +293,8 @@
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:src="@drawable/ic_phone_call"
-                    android:tint="#FFFFFF"
-                    android:marginStart="12dp" />
+                    android:layout_marginStart="12dp"
+                    android:tint="#FFFFFF" />
 
                 <TextView
                     android:layout_width="0dp"
@@ -333,11 +303,11 @@
                     android:text="@string/phone_call"
                     android:textSize="14sp"
                     android:textColor="#FFFFFF"
-                    android:marginStart="12dp" />
+                    android:layout_marginStart="12dp" />
 
             </LinearLayout>
 
-            <!-- Email Checkbox -->
+            <!-- Email Method -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
@@ -346,7 +316,7 @@
                 android:background="@drawable/checkbox_item_background"
                 android:paddingStart="12dp"
                 android:paddingEnd="12dp"
-                android:marginBottom="24dp">
+                android:layout_marginBottom="24dp">
 
                 <CheckBox
                     android:id="@+id/cb_email"
@@ -359,8 +329,8 @@
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:src="@drawable/ic_email"
-                    android:tint="#FFFFFF"
-                    android:marginStart="12dp" />
+                    android:layout_marginStart="12dp"
+                    android:tint="#FFFFFF" />
 
                 <TextView
                     android:layout_width="0dp"
@@ -369,79 +339,7 @@
                     android:text="@string/email"
                     android:textSize="14sp"
                     android:textColor="#FFFFFF"
-                    android:marginStart="12dp" />
-
-            </LinearLayout>
-
-            <!-- Additional Information Section -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/additional_information"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                android:textColor="#FFFFFF"
-                android:marginBottom="12dp" />
-
-            <!-- Medical Information Input -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:marginBottom="16dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/medical_information"
-                    android:textSize="12sp"
-                    android:textColor="#FFFFFF"
-                    android:textStyle="bold"
-                    android:marginBottom="6dp" />
-
-                <EditText
-                    android:id="@+id/et_medical_info"
-                    android:layout_width="match_parent"
-                    android:layout_height="100dp"
-                    android:background="@drawable/input_field_background"
-                    android:hint="@string/medical_info_placeholder"
-                    android:textColor="#FFFFFF"
-                    android:textColorHint="#666666"
-                    android:textSize="14sp"
-                    android:padding="12dp"
-                    android:inputType="text|textMultiLine"
-                    android:gravity="top" />
-
-            </LinearLayout>
-
-            <!-- Notes Section -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:marginBottom="24dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/notes"
-                    android:textSize="12sp"
-                    android:textColor="#FFFFFF"
-                    android:textStyle="bold"
-                    android:marginBottom="6dp" />
-
-                <EditText
-                    android:id="@+id/et_notes"
-                    android:layout_width="match_parent"
-                    android:layout_height="100dp"
-                    android:background="@drawable/input_field_background"
-                    android:hint="@string/notes_placeholder"
-                    android:textColor="#FFFFFF"
-                    android:textColorHint="#666666"
-                    android:textSize="14sp"
-                    android:padding="12dp"
-                    android:inputType="text|textMultiLine"
-                    android:gravity="top" />
+                    android:layout_marginStart="12dp" />
 
             </LinearLayout>
 

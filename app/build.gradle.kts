@@ -6,12 +6,12 @@ plugins {
 
 android {
     namespace = "com.example.finalproject"
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.example.finalproject"
         minSdk = 24
-        targetSdk = 34
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
     }
@@ -59,6 +59,11 @@ dependencies {
 
     // Material Design
     implementation("com.google.android.material:material:1.11.0")
+    implementation(libs.androidx.activity)
+    implementation(libs.firebase.auth)
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services.auth)
+    implementation(libs.googleid)
 
     // Image Loading (if you need it for profile pictures)
 
