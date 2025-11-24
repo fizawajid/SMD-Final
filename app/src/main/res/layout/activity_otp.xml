@@ -65,6 +65,7 @@
 
             <!-- 6 Code Boxes -->
             <LinearLayout
+                android:id="@+id/etotp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
@@ -142,6 +143,7 @@
 
             <!-- Verify Button -->
             <Button
+                android:id="@+id/verify"
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
                 android:text="Verify"

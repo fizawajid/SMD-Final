@@ -75,7 +75,7 @@
 
         <!-- Email Input -->
         <EditText
-            android:id="@+id/etEmail"
+            android:id="@+id/etPhone"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_marginTop="8dp"
@@ -156,9 +156,9 @@
             <TextView
                 android:id="@+id/tvSignUp"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Sign Up"
+                android:layout_height="22dp"
                 android:backgroundTint="@color/black"
+                android:text="Sign Up"
                 android:textColor="#4CAF50"
                 android:textSize="15sp"
                 android:textStyle="bold" />
