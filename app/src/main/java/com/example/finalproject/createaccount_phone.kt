@@ -123,7 +123,7 @@ class createaccount_phone : AppCompatActivity() {
                                     "Phone verification successful!",
                                     Toast.LENGTH_SHORT
                                 ).show()
-                                startActivity(Intent(this, dashboard::class.java))
+                                startActivity(Intent(this, finishfile::class.java))
                                 finish()
                             }
                             .addOnFailureListener { e ->
