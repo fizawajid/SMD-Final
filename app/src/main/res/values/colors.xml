@@ -7,5 +7,10 @@
 
     <color name="dark_bg">#121212</color>
     <color name="reddish">#3E2323</color>
+
+    <color name="text_secondary">#CCCCCC</color>
+    <color name="text_tertiary">#999999</color>
+    <color name="icon_tint">#666666</color>
+
 </resources>
 
