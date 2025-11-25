@@ -46,9 +46,10 @@
         </LinearLayout>
 
         <TextView
+            android:id="@+id/tv_contacts_configured"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/contacts_configured"
+            android:text="0 contacts configured"
             android:textColor="#999999"
             android:textSize="13sp" />
     </LinearLayout>
@@ -92,11 +93,13 @@
 
     <!-- Scrollable Content -->
     <ScrollView
+        android:id="@+id/contacts_scroll_view"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1">
 
         <LinearLayout
+            android:id="@+id/contacts_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
@@ -112,398 +115,47 @@
                 android:padding="16dp"
                 android:paddingBottom="8dp" />
 
-            <!-- Contact Item 1 - Mom -->
+            <!-- Dynamic contacts will be added here programmatically -->
+
+            <!-- Empty State Message -->
             <LinearLayout
+                android:id="@+id/empty_state"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="16dp"
-                android:background="@drawable/contact_item_background"
-                android:gravity="center_vertical"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginBottom="12dp">
+                android:orientation="vertical"
+                android:gravity="center"
+                android:padding="32dp"
+                android:visibility="gone">
 
                 <ImageView
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:background="@drawable/female"
-                    android:contentDescription="@string/mom" />
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:layout_marginStart="12dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/mom"
-                            android:textColor="#ffffff"
-                            android:textSize="15sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/high_priority"
-                            android:textColor="#ffffff"
-                            android:textSize="11sp"
-                            android:background="@drawable/priority_high"
-                            android:paddingStart="6dp"
-                            android:paddingEnd="6dp"
-                            android:paddingTop="2dp"
-                            android:paddingBottom="2dp"
-                            android:layout_marginStart="8dp" />
-                    </LinearLayout>
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/mom_phone"
-                        android:textColor="#cccccc"
-                        android:textSize="13sp"
-                        android:layout_marginTop="2dp" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/mom_email"
-                        android:textColor="#999999"
-                        android:textSize="12sp"
-                        android:layout_marginTop="2dp" />
-                </LinearLayout>
-
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_menu"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:src="@drawable/ic_contacts"
                     android:tint="#666666"
-                    android:contentDescription="@string/menu" />
-            </LinearLayout>
+                    android:alpha="0.5" />
 
-            <!-- Contact Item 2 - Dad -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="16dp"
-                android:background="@drawable/contact_item_background"
-                android:gravity="center_vertical"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginBottom="12dp">
-
-                <ImageView
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:background="@drawable/male"
-                    android:contentDescription="@string/dad" />
-
-                <LinearLayout
-                    android:layout_width="0dp"
+                <TextView
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:layout_marginStart="12dp">
+                    android:text="No Emergency Contacts Yet"
+                    android:textColor="#ffffff"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:layout_marginTop="16dp" />
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/dad"
-                            android:textColor="#ffffff"
-                            android:textSize="15sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/high_priority"
-                            android:textColor="#ffffff"
-                            android:textSize="11sp"
-                            android:background="@drawable/priority_high"
-                            android:paddingStart="6dp"
-                            android:paddingEnd="6dp"
-                            android:paddingTop="2dp"
-                            android:paddingBottom="2dp"
-                            android:layout_marginStart="8dp" />
-                    </LinearLayout>
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/dad_phone"
-                        android:textColor="#cccccc"
-                        android:textSize="13sp"
-                        android:layout_marginTop="2dp" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/dad_email"
-                        android:textColor="#999999"
-                        android:textSize="12sp"
-                        android:layout_marginTop="2dp" />
-                </LinearLayout>
-
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_menu"
-                    android:tint="#666666"
-                    android:contentDescription="@string/menu" />
-            </LinearLayout>
-
-            <!-- Contact Item 3 - Dr. Marla -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="16dp"
-                android:background="@drawable/contact_item_background"
-                android:gravity="center_vertical"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginBottom="12dp">
-
-                <ImageView
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:background="@drawable/female"
-                    android:contentDescription="@string/dr_marla" />
-
-                <LinearLayout
-                    android:layout_width="0dp"
+                <TextView
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:layout_marginStart="12dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/dr_marla"
-                            android:textColor="#ffffff"
-                            android:textSize="15sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/medium_priority"
-                            android:textColor="#000000"
-                            android:textSize="11sp"
-                            android:background="@drawable/priority_medium"
-                            android:paddingStart="6dp"
-                            android:paddingEnd="6dp"
-                            android:paddingTop="2dp"
-                            android:paddingBottom="2dp"
-                            android:layout_marginStart="8dp" />
-                    </LinearLayout>
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/marla_phone"
-                        android:textColor="#cccccc"
-                        android:textSize="13sp"
-                        android:layout_marginTop="2dp" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/marla_email"
-                        android:textColor="#999999"
-                        android:textSize="12sp"
-                        android:layout_marginTop="2dp" />
-                </LinearLayout>
-
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_menu"
-                    android:tint="#666666"
-                    android:contentDescription="@string/menu" />
-            </LinearLayout>
-
-            <!-- Contact Item 4 - Jack -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="16dp"
-                android:background="@drawable/contact_item_background"
-                android:gravity="center_vertical"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginBottom="12dp">
-
-                <ImageView
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:background="@drawable/male"
-                    android:contentDescription="@string/jack" />
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:layout_marginStart="12dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/jack"
-                            android:textColor="#ffffff"
-                            android:textSize="15sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/medium_priority"
-                            android:textColor="#000000"
-                            android:textSize="11sp"
-                            android:background="@drawable/priority_medium"
-                            android:paddingStart="6dp"
-                            android:paddingEnd="6dp"
-                            android:paddingTop="2dp"
-                            android:paddingBottom="2dp"
-                            android:layout_marginStart="8dp" />
-                    </LinearLayout>
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/jack_phone"
-                        android:textColor="#cccccc"
-                        android:textSize="13sp"
-                        android:layout_marginTop="2dp" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/jack_email"
-                        android:textColor="#999999"
-                        android:textSize="12sp"
-                        android:layout_marginTop="2dp" />
-                </LinearLayout>
-
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_menu"
-                    android:tint="#666666"
-                    android:contentDescription="@string/menu" />
-            </LinearLayout>
-
-            <!-- Contact Item 5 - Alexa -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="16dp"
-                android:background="@drawable/contact_item_background"
-                android:gravity="center_vertical"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginBottom="12dp">
-
-                <ImageView
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:background="@drawable/female"
-                    android:contentDescription="@string/alexa" />
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:layout_marginStart="12dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/alexa"
-                            android:textColor="#ffffff"
-                            android:textSize="15sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/low_priority"
-                            android:textColor="#ffffff"
-                            android:textSize="11sp"
-                            android:background="@drawable/priority_low"
-                            android:paddingStart="6dp"
-                            android:paddingEnd="6dp"
-                            android:paddingTop="2dp"
-                            android:paddingBottom="2dp"
-                            android:layout_marginStart="8dp" />
-                    </LinearLayout>
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/alexa_phone"
-                        android:textColor="#cccccc"
-                        android:textSize="13sp"
-                        android:layout_marginTop="2dp" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/alexa_email"
-                        android:textColor="#999999"
-                        android:textSize="12sp"
-                        android:layout_marginTop="2dp" />
-                </LinearLayout>
-
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_menu"
-                    android:tint="#666666"
-                    android:contentDescription="@string/menu" />
+                    android:text="Tap the 'Add' button to create your first emergency contact"
+                    android:textColor="#999999"
+                    android:textSize="14sp"
+                    android:textAlignment="center"
+                    android:layout_marginTop="8dp" />
             </LinearLayout>
 
             <!-- Contact Summary Section -->
             <LinearLayout
+                android:id="@+id/summary_section"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
@@ -512,7 +164,8 @@
                 android:layout_marginEnd="16dp"
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="16dp"
-                android:background="@drawable/contact_item_background">
+                android:background="@drawable/contact_item_background"
+                android:visibility="gone">
 
                 <TextView
                     android:layout_width="match_parent"
@@ -543,7 +196,8 @@
                         android:layout_weight="1"
                         android:orientation="vertical"
                         android:background="@drawable/priority_summary_high"
-                        android:padding="12dp">
+                        android:padding="12dp"
+                        android:layout_marginEnd="4dp">
 
                         <TextView
                             android:layout_width="match_parent"
@@ -554,9 +208,10 @@
                             android:textStyle="bold" />
 
                         <TextView
+                            android:id="@+id/tv_high_count"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="@string/high_count"
+                            android:text="0"
                             android:textColor="#ffffff"
                             android:textSize="16sp"
                             android:textStyle="bold"
@@ -569,7 +224,9 @@
                         android:layout_weight="1"
                         android:orientation="vertical"
                         android:background="@drawable/priority_summary_medium"
-                        android:padding="12dp">
+                        android:padding="12dp"
+                        android:layout_marginStart="4dp"
+                        android:layout_marginEnd="4dp">
 
                         <TextView
                             android:layout_width="match_parent"
@@ -580,9 +237,10 @@
                             android:textStyle="bold" />
 
                         <TextView
+                            android:id="@+id/tv_medium_count"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="@string/medium_count"
+                            android:text="0"
                             android:textColor="#000000"
                             android:textSize="16sp"
                             android:textStyle="bold"
@@ -595,7 +253,8 @@
                         android:layout_weight="1"
                         android:orientation="vertical"
                         android:background="@drawable/priority_summary_low"
-                        android:padding="12dp">
+                        android:padding="12dp"
+                        android:layout_marginStart="4dp">
 
                         <TextView
                             android:layout_width="match_parent"
@@ -606,9 +265,10 @@
                             android:textStyle="bold" />
 
                         <TextView
+                            android:id="@+id/tv_low_count"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="@string/low_count"
+                            android:text="0"
                             android:textColor="#ffffff"
                             android:textSize="16sp"
                             android:textStyle="bold"

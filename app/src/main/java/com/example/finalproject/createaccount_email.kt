@@ -83,7 +83,7 @@ class createaccount_email : AppCompatActivity() {
                                     "Account created successfully!",
                                     Toast.LENGTH_SHORT
                                 ).show()
-                                startActivity(Intent(this, dashboard::class.java))
+                                startActivity(Intent(this, finishfile::class.java))
                                 finish()
                             }
                             .addOnFailureListener { e ->

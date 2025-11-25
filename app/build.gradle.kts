@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "com.example.finalproject"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.example.finalproject"
@@ -39,6 +39,9 @@ android {
 dependencies {
     // Agora RTC SDK for Voice & Video Calls
 
+    // Firebase
+    implementation(platform("com.google.firebase:firebase-bom:32.7.0"))
+    implementation("com.google.firebase:firebase-database-ktx")
 
     // Firebase BoM - Ensures all Firebase libraries are compatible
     implementation(platform("com.google.firebase:firebase-bom:33.5.1"))
@@ -59,6 +62,10 @@ dependencies {
 
     // Material Design
     implementation("com.google.android.material:material:1.11.0")
+    implementation(libs.firebase.auth)
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services.auth)
+    implementation(libs.googleid)
 
     // Image Loading (if you need it for profile pictures)
 
