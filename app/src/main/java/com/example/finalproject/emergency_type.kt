@@ -15,6 +15,7 @@ class emergency_type : AppCompatActivity() {
         // Get the views
         val cardPersonalSafety = findViewById<FrameLayout>(R.id.card_personal_safety)
         val cardTravelEmergency = findViewById<FrameLayout>(R.id.card_travel_emergency)
+        val cardMedicalEmergency = findViewById<FrameLayout>(R.id.card_medical_emergency)
 
         // 👉 When "Personal Safety" card is pressed
         cardPersonalSafety.setOnClickListener {
@@ -24,6 +25,10 @@ class emergency_type : AppCompatActivity() {
         // 👉 When "Travel Emergency" card is pressed
         cardTravelEmergency.setOnClickListener {
             startActivity(Intent(this, travel_safety::class.java))
+        }
+
+        cardMedicalEmergency.setOnClickListener {
+            startActivity(Intent(this, medical_safety::class.java))
         }
     }
 }

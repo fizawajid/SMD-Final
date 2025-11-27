@@ -36,6 +36,8 @@
         <activity android:name=".add_emergency_contact" />
         <activity android:name=".alerthistory" />
         <activity android:name=".finishpage" />
+        <activity android:name=".medical_safety"/>
+
         <activity android:name=".otp" />
         <activity android:name=".emergency_contacts" />
     </application>

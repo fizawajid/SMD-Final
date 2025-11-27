@@ -5,16 +5,14 @@ import android.util.Log
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
-import com.android.volley.Request.Method.*
-import com.android.volley.Response
+import com.android.volley.Request.Method.POST
 import com.android.volley.toolbox.JsonObjectRequest
-import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import org.json.JSONObject
 
-class travel_safety : AppCompatActivity() {
+class medical_safety : AppCompatActivity() {
 
     private lateinit var database: DatabaseReference
     private lateinit var btnBack: ImageView
@@ -35,21 +33,21 @@ class travel_safety : AppCompatActivity() {
     private var emailsFailed = 0
     private var totalEmailsToSend = 0
 
-    // Get sender email from logged in user
+    // Sender email
     private val SENDER_EMAIL = FirebaseAuth.getInstance().currentUser?.email ?: "noreply@safeme.com"
 
-    // EmailJS credentials (replace with your real values)
+    // EmailJS credentials
     private val EMAILJS_SERVICE_ID = "service_7c31t4s"
     private val EMAILJS_TEMPLATE_ID = "template_6woyk8b"
-    private val EMAILJS_PUBLIC_KEY = "z0XPnqySWvklrNwlF" // user_id / public key
+    private val EMAILJS_PUBLIC_KEY = "z0XPnqySWvklrNwlF" // public key
 
     companion object {
-        private const val TAG = "TravelSafety"
+        private const val TAG = "MedicalSafety"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.travel_safety)
+        setContentView(R.layout.medical_safety)
 
         initializeViews()
         setupClickListeners()
@@ -77,29 +75,25 @@ class travel_safety : AppCompatActivity() {
 
     private fun loadFinishData() {
         val finishRef = FirebaseDatabase.getInstance().getReference("finish").child(userId)
-
         finishRef.get().addOnSuccessListener { snapshot ->
             finishData = snapshot.getValue(FinishData::class.java)
             Log.d(TAG, "Finish data loaded: $finishData")
         }.addOnFailureListener { e ->
             Log.e(TAG, "Failed to load finish data", e)
-            Toast.makeText(this, "Failed to load user data: ${e.message}", Toast.LENGTH_SHORT).show()
+
         }
     }
 
     private fun loadEmergencyContacts() {
         database = FirebaseDatabase.getInstance().getReference("emergency_contacts")
-
         database.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 contactsList.clear()
                 for (contactSnapshot in snapshot.children) {
                     val contact = contactSnapshot.getValue(EmergencyContact::class.java)
-                    contact?.let {
-                        contactsList.add(it)
-                        Log.d(TAG, "Loaded contact: ${it.fullName}, Email: ${it.email}")
-                    }
+                    contact?.let { contactsList.add(it) }
                 }
+
                 // Sort by priority: High -> Medium -> Low
                 contactsList.sortWith(compareBy {
                     when (it.priorityLevel) {
@@ -109,13 +103,14 @@ class travel_safety : AppCompatActivity() {
                         else -> 4
                     }
                 })
+
                 displayContacts()
                 updateContactCount()
             }
 
             override fun onCancelled(error: DatabaseError) {
                 Log.e(TAG, "Failed to load contacts", error.toException())
-                Toast.makeText(this@travel_safety, "Failed to load contacts: ${error.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@medical_safety, "Failed to load contacts: ${error.message}", Toast.LENGTH_SHORT).show()
             }
         })
     }
@@ -155,9 +150,7 @@ class travel_safety : AppCompatActivity() {
         contactView.addView(imgAvatar)
 
         val contentLayout = LinearLayout(this).apply {
-            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply {
-                marginStart = 12
-            }
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply { marginStart = 12 }
             orientation = LinearLayout.VERTICAL
         }
 
@@ -214,18 +207,14 @@ class travel_safety : AppCompatActivity() {
             return
         }
 
-        // Validate contacts have emails
         val contactsWithEmail = contactsList.filter { !it.email.isNullOrBlank() }
-
         if (contactsWithEmail.isEmpty()) {
             Toast.makeText(this, "No contacts have email addresses! Please add email addresses to your contacts.", Toast.LENGTH_LONG).show()
             return
         }
 
-        // Show progress UI
+        // Show progress
         showProgress()
-
-        // Disable button to prevent multiple clicks
         btnSendAlert.isEnabled = false
         btnSendAlert.alpha = 0.5f
 
@@ -243,12 +232,9 @@ class travel_safety : AppCompatActivity() {
         Log.d(TAG, "Sending alerts to ${contactsWithEmail.size} contacts")
         updateProgress(0, totalEmailsToSend)
 
-        // Send emails (using EmailJS)
-        // If you send many emails, consider spacing them out to avoid provider limits.
+        // Send emails
         for ((index, contact) in contactsWithEmail.withIndex()) {
             contact.email?.let { email ->
-                // Optional: stagger requests slightly to avoid rate limits:
-                // Handler(Looper.getMainLooper()).postDelayed({ sendEmail(email, contact.fullName, alertMessage) }, index * 250L)
                 sendEmail(email, contact.fullName, alertMessage)
             }
         }
@@ -276,7 +262,7 @@ class travel_safety : AppCompatActivity() {
 
     private fun buildAlertMessage(additionalMessage: String): String {
         val sb = StringBuilder()
-        sb.append("🚨 TRAVEL EMERGENCY ALERT 🚨\n\n")
+        sb.append("🚨 MEDICAL EMERGENCY ALERT 🚨\n\n")
         sb.append("From: $SENDER_EMAIL\n")
         sb.append("Time: ${java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.getDefault()).format(java.util.Date())}\n\n")
         if (additionalMessage.isNotEmpty()) sb.append("Message: $additionalMessage\n\n")
@@ -297,7 +283,7 @@ class travel_safety : AppCompatActivity() {
         val alertData = hashMapOf(
             "userId" to userId,
             "userEmail" to SENDER_EMAIL,
-            "type" to "Travel Emergency",
+            "type" to "Medical Emergency",
             "message" to message,
             "additionalMessage" to etAdditionalMessage.text.toString(),
             "timestamp" to System.currentTimeMillis(),
@@ -348,7 +334,7 @@ class travel_safety : AppCompatActivity() {
                 emailsFailed++
                 updateProgress(emailsSent + emailsFailed, totalEmailsToSend)
                 checkIfAllEmailsSent()
-                Log.e("EmailJS", "Error sending email: ${error.message}")
+                Log.e(TAG, "Error sending email: ${error.message}")
             }
         ) {
             override fun getHeaders(): MutableMap<String, String> {
@@ -362,8 +348,6 @@ class travel_safety : AppCompatActivity() {
 
         Volley.newRequestQueue(this).add(request)
     }
-
-
 
     private fun checkIfAllEmailsSent() {
         if (emailsSent + emailsFailed >= totalEmailsToSend) {
@@ -388,7 +372,6 @@ class travel_safety : AppCompatActivity() {
                 Toast.makeText(this, message, Toast.LENGTH_LONG).show()
                 Log.d(TAG, "Email sending complete: $message")
 
-                // Hide progress and finish after delay
                 btnSendAlert.postDelayed({
                     hideProgress()
                     if (emailsSent > 0) finish()

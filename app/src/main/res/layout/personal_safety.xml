@@ -175,6 +175,40 @@
                 android:orientation="vertical"
                 android:layout_marginBottom="32dp" />
 
+            <!-- Progress Bar Section (Hidden by default) -->
+            <LinearLayout
+                android:id="@+id/progressContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone"
+                android:layout_marginBottom="24dp"
+                android:padding="16dp"
+                android:background="@drawable/input_box">
+
+                <TextView
+                    android:id="@+id/tvProgressStatus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Sending alerts..."
+                    android:textColor="#FFFFFF"
+                    android:textSize="14sp"
+                    android:layout_marginBottom="12dp"
+                    android:layout_gravity="center_horizontal" />
+
+                <ProgressBar
+                    android:id="@+id/progressBar"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:indeterminate="false"
+                    android:max="100"
+                    android:progress="0"
+                    android:progressTint="#FF0000"
+                    android:progressBackgroundTint="#333333" />
+
+            </LinearLayout>
+
             <!-- Send Emergency Alert Button -->
             <TextView
                 android:id="@+id/btnSendAlert"
@@ -187,7 +221,9 @@
                 android:textSize="16sp"
                 android:padding="18dp"
                 android:textStyle="bold"
+                android:gravity="center"
                 android:drawableStart="@drawable/send_icon"
+                android:drawablePadding="8dp"
                 android:paddingStart="16dp"
                 android:paddingEnd="16dp" />
 

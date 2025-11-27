@@ -67,6 +67,8 @@ dependencies {
     implementation(libs.androidx.credentials.play.services.auth)
     implementation(libs.googleid)
     implementation(libs.firebase.database)
+    implementation("com.squareup.okhttp3:okhttp:4.10.0")
+    implementation(libs.volley)
 
     // Image Loading (if you need it for profile pictures)
 
