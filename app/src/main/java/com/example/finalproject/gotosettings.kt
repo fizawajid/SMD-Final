@@ -1,6 +1,7 @@
 package com.example.finalproject
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -14,12 +15,19 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SwitchCompat
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
 
 class gotosettings : AppCompatActivity() {
 
     private lateinit var switchShakeDetection: SwitchCompat
     private lateinit var seekBarSensitivity: SeekBar
     private lateinit var btnTestShake: LinearLayout
+    private lateinit var btnSignOut: LinearLayout
+    private lateinit var btnDeleteAccount: LinearLayout
+
+    // Firebase
+    private lateinit var auth: FirebaseAuth
 
     companion object {
         private const val LOCATION_PERMISSION_REQUEST = 3001
@@ -30,6 +38,9 @@ class gotosettings : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_settings)
 
+        // Initialize Firebase Auth
+        auth = FirebaseAuth.getInstance()
+
         initializeViews()
         setupClickListeners()
         loadShakeSettings()
@@ -39,6 +50,8 @@ class gotosettings : AppCompatActivity() {
         switchShakeDetection = findViewById(R.id.switchShakeDetection)
         seekBarSensitivity = findViewById(R.id.seekBarSensitivity)
         btnTestShake = findViewById(R.id.btnTestShake)
+        btnSignOut = findViewById(R.id.btnSignOut)
+        btnDeleteAccount = findViewById(R.id.btnDeleteAccount)
 
         // Set up sensitivity seekbar (0-100, where 0=low, 50=medium, 100=high)
         seekBarSensitivity.max = 100
@@ -46,10 +59,26 @@ class gotosettings : AppCompatActivity() {
     }
 
     private fun setupClickListeners() {
+        // Back button
+        val backButton = findViewById<ImageView>(R.id.back)
+        backButton?.setOnClickListener {
+            finish()
+        }
+
         // Offline alerts
-        val btnoffline = findViewById<ImageView>(R.id.offline)
+        val btnoffline = findViewById<LinearLayout>(R.id.btnoffline)
         btnoffline.setOnClickListener {
-            startActivity(android.content.Intent(this, OfflineAlertsActivity::class.java))
+            startActivity(Intent(this, OfflineAlertsActivity::class.java))
+        }
+
+        // Sign out button
+        btnSignOut.setOnClickListener {
+            showSignOutDialog()
+        }
+
+        // Delete account button
+        btnDeleteAccount.setOnClickListener {
+            showDeleteAccountDialog()
         }
 
         // Test shake detection button
@@ -83,13 +112,156 @@ class gotosettings : AppCompatActivity() {
         })
     }
 
+    private fun showSignOutDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("Sign Out")
+            .setMessage("Are you sure you want to sign out?")
+            .setPositiveButton("Sign Out") { _, _ ->
+                signOut()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun signOut() {
+        try {
+            // Stop shake detection service if running
+            if (ShakeDetectionManager.isEnabled(this)) {
+                ShakeDetectorService.stop(this)
+                ShakeDetectionManager.setEnabled(this, false)
+            }
+
+            // Clear local preferences
+            getSharedPreferences("ShakeDetectionPrefs", MODE_PRIVATE)
+                .edit()
+                .clear()
+                .apply()
+
+            // Sign out from Firebase
+            auth.signOut()
+
+            // Show success message
+            Toast.makeText(this, "Signed out successfully", Toast.LENGTH_SHORT).show()
+
+            // Navigate to login screen
+            val intent = Intent(this, getstarted::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
+            finish()
+
+        } catch (e: Exception) {
+            Toast.makeText(this, "Error signing out: ${e.message}", Toast.LENGTH_LONG).show()
+        }
+    }
+
+    private fun showDeleteAccountDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("⚠️ Delete Account")
+            .setMessage("This action is permanent and cannot be undone.\n\n" +
+                    "All your data including:\n" +
+                    "• Profile information\n" +
+                    "• Emergency contacts\n" +
+                    "• Settings and preferences\n\n" +
+                    "will be permanently deleted.\n\n" +
+                    "Are you absolutely sure?")
+            .setPositiveButton("Delete") { _, _ ->
+                confirmDeleteAccount()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun confirmDeleteAccount() {
+        // Second confirmation dialog
+        AlertDialog.Builder(this)
+            .setTitle("Final Confirmation")
+            .setMessage("Type 'DELETE' to confirm account deletion")
+            .setPositiveButton("Confirm") { _, _ ->
+                deleteAccount()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun deleteAccount() {
+        val currentUser = auth.currentUser
+
+        if (currentUser == null) {
+            Toast.makeText(this, "No user logged in", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        try {
+            val userId = currentUser.uid
+
+            // Stop shake detection
+            if (ShakeDetectionManager.isEnabled(this)) {
+                ShakeDetectorService.stop(this)
+            }
+
+            // Delete user data from Realtime Database
+            val database = FirebaseDatabase.getInstance().reference
+            database.child("users").child(userId).removeValue()
+                .addOnSuccessListener {
+                    // Delete Firebase Auth account
+                    currentUser.delete()
+                        .addOnSuccessListener {
+                            // Clear local data
+                            clearAllLocalData()
+
+                            Toast.makeText(
+                                this,
+                                "Account deleted successfully",
+                                Toast.LENGTH_SHORT
+                            ).show()
+
+                            // Navigate to login
+                            val intent = Intent(this, getstarted::class.java)
+                            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                            startActivity(intent)
+                            finish()
+                        }
+                        .addOnFailureListener { e ->
+                            Toast.makeText(
+                                this,
+                                "Error deleting account: ${e.message}",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+                }
+                .addOnFailureListener { e ->
+                    Toast.makeText(
+                        this,
+                        "Error deleting user data: ${e.message}",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+
+        } catch (e: Exception) {
+            Toast.makeText(
+                this,
+                "Error: ${e.message}",
+                Toast.LENGTH_LONG
+            ).show()
+        }
+    }
+
+    private fun clearAllLocalData() {
+        // Clear all shared preferences
+        getSharedPreferences("ShakeDetectionPrefs", MODE_PRIVATE).edit().clear().apply()
+
+        // Clear any other app-specific data
+        val sharedPrefsDir = filesDir.parentFile?.listFiles()?.find { it.name == "shared_prefs" }
+        sharedPrefsDir?.listFiles()?.forEach { it.delete() }
+    }
+
     private fun testShakeDetection() {
         AlertDialog.Builder(this)
             .setTitle("🧪 Test Shake Detection")
             .setMessage("This will simulate a shake and send test emergency alerts to all your contacts.\n\n⚠️ Real emails will be sent!\n\nContinue?")
             .setPositiveButton("Yes, Send Test") { _, _ ->
                 // Trigger the shake detection manually
-                val intent = android.content.Intent("com.example.finalproject.TEST_SHAKE")
+                val intent = Intent("com.example.finalproject.TEST_SHAKE")
                 sendBroadcast(intent)
 
                 Toast.makeText(
@@ -221,13 +393,10 @@ class gotosettings : AppCompatActivity() {
         saveSensitivity(progress)
 
         // Calculate threshold based on progress (inverse relationship)
-        // Low sensitivity (0-33): threshold = 20-25 (harder to trigger)
-        // Medium sensitivity (34-66): threshold = 12-19 (moderate)
-        // High sensitivity (67-100): threshold = 5-11 (easier to trigger)
         val threshold = when {
-            progress < 34 -> 20.0f - (progress / 33f * 5f) // 20 to 15
-            progress < 67 -> 15.0f - ((progress - 33) / 33f * 5f) // 15 to 10
-            else -> 10.0f - ((progress - 66) / 34f * 5f) // 10 to 5
+            progress < 34 -> 20.0f - (progress / 33f * 5f)
+            progress < 67 -> 15.0f - ((progress - 33) / 33f * 5f)
+            else -> 10.0f - ((progress - 66) / 34f * 5f)
         }
 
         // Restart service with new threshold if it's running
