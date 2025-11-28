@@ -5,11 +5,16 @@ import android.util.Log
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.android.volley.Request.Method.POST
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
+import com.example.finalproject.repository.AlertRepository
+import com.example.finalproject.utils.NetworkUtils
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
+import com.google.gson.Gson
+import kotlinx.coroutines.launch
 import org.json.JSONObject
 
 class personal_safety : AppCompatActivity() {
@@ -26,8 +31,11 @@ class personal_safety : AppCompatActivity() {
 
     private val contactsList = mutableListOf<EmergencyContact>()
     private var finishData: FinishData? = null
-
     private val userId = FirebaseAuth.getInstance().currentUser?.uid ?: "unknown_user"
+
+    // Offline storage
+    private lateinit var alertRepository: AlertRepository
+    private val gson = Gson()
 
     // EmailJS
     private val SENDER_EMAIL = FirebaseAuth.getInstance().currentUser?.email ?: "noreply@safeme.com"
@@ -47,6 +55,9 @@ class personal_safety : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.personal_safety)
+
+        // Initialize repository
+        alertRepository = AlertRepository(this)
 
         initializeViews()
         setupClickListeners()
@@ -96,7 +107,6 @@ class personal_safety : AppCompatActivity() {
                     contact?.let { contactsList.add(it) }
                 }
 
-                // Sort by priority
                 contactsList.sortWith(compareBy {
                     when (it.priorityLevel) {
                         "High" -> 1
@@ -170,7 +180,6 @@ class personal_safety : AppCompatActivity() {
         content.addView(name)
         content.addView(phone)
 
-        // Show email if available
         if (!contact.email.isNullOrBlank()) {
             val email = TextView(this).apply {
                 text = contact.email
@@ -205,24 +214,64 @@ class personal_safety : AppCompatActivity() {
             return
         }
 
-        // Show progress
         showProgress()
-
         btnSendAlert.isEnabled = false
         btnSendAlert.alpha = 0.5f
 
         val message = buildAlertMessage(etAdditionalMessage.text.toString())
-        saveAlertToFirebase(message)
 
-        emailsSent = 0
-        emailsFailed = 0
-        totalEmailsToSend = contactsWithEmail.size
-
-        for (contact in contactsWithEmail) {
-            sendEmail(contact.email!!, contact.fullName, message)
+        // Save alert to local DB or Firebase based on connectivity
+        lifecycleScope.launch {
+            saveAlertToStorage(message, contactsWithEmail)
         }
 
-        Toast.makeText(this, "Sending alerts...", Toast.LENGTH_SHORT).show()
+        // Only try to send emails if online
+        if (NetworkUtils.isNetworkAvailable(this)) {
+            emailsSent = 0
+            emailsFailed = 0
+            totalEmailsToSend = contactsWithEmail.size
+
+            for (contact in contactsWithEmail) {
+                sendEmail(contact.email!!, contact.fullName, message)
+            }
+        } else {
+            // Offline mode - just save locally
+            tvProgressStatus.text = "Alert saved locally (offline)"
+            Toast.makeText(this, "No internet. Alert saved locally and will sync when online.", Toast.LENGTH_LONG).show()
+
+            btnSendAlert.postDelayed({
+                hideProgress()
+                finish()
+            }, 2000)
+        }
+    }
+
+    private suspend fun saveAlertToStorage(message: String, contacts: List<EmergencyContact>) {
+        val contactsJson = gson.toJson(contacts.map {
+            hashMapOf(
+                "name" to it.fullName,
+                "phone" to it.phoneNumber,
+                "email" to (it.email ?: ""),
+                "priority" to it.priorityLevel
+            )
+        })
+
+        val result = alertRepository.saveAlert(
+            userId = userId,
+            userEmail = SENDER_EMAIL,
+            type = "Personal Safety",
+            message = message,
+            additionalMessage = etAdditionalMessage.text.toString(),
+            contactsJson = contactsJson,
+            contactsNotified = contacts.size,
+            location = "Current location" // You can add actual location here
+        )
+
+        result.onSuccess {
+            Log.d(TAG, "Alert saved: ${it}")
+        }.onFailure {
+            Log.e(TAG, "Failed to save alert", it)
+        }
     }
 
     private fun showProgress() {
@@ -261,29 +310,6 @@ class personal_safety : AppCompatActivity() {
 
         sb.append("\nThis is an automated alert. Respond immediately.")
         return sb.toString()
-    }
-
-    private fun saveAlertToFirebase(msg: String) {
-        val data = hashMapOf(
-            "userId" to userId,
-            "userEmail" to SENDER_EMAIL,
-            "type" to "Personal Safety",
-            "message" to msg,
-            "timestamp" to System.currentTimeMillis(),
-            "contacts" to contactsList.map {
-                hashMapOf(
-                    "name" to it.fullName,
-                    "phone" to it.phoneNumber,
-                    "email" to (it.email ?: ""),
-                    "priority" to it.priorityLevel
-                )
-            }
-        )
-
-        FirebaseDatabase.getInstance()
-            .getReference("emergency_alerts")
-            .push()
-            .setValue(data)
     }
 
     private fun sendEmail(toEmail: String, name: String, message: String) {

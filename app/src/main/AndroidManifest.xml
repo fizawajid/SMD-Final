@@ -2,6 +2,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" /> <!-- Optional: for location features -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -12,9 +18,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Finalproject">
         <activity
-            android:name=".finishfile"
+            android:name=".OfflineAlertsActivity"
             android:exported="false" />
-        <!-- Launcher Activity -->
+        <activity
+            android:name=".finishfile"
+            android:exported="false" /> <!-- Launcher Activity -->
         <activity
             android:name=".getstarted"
             android:exported="true">
@@ -36,8 +44,7 @@
         <activity android:name=".add_emergency_contact" />
         <activity android:name=".alerthistory" />
         <activity android:name=".finishpage" />
-        <activity android:name=".medical_safety"/>
-
+        <activity android:name=".medical_safety" />
         <activity android:name=".otp" />
         <activity android:name=".emergency_contacts" />
     </application>

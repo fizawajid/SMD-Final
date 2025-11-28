@@ -2,16 +2,17 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("com.google.gms.google-services")
+    id("kotlin-kapt")
 }
 
 android {
     namespace = "com.example.finalproject"
-    compileSdk = 35
+    compileSdk = 36  // Updated
 
     defaultConfig {
         applicationId = "com.example.finalproject"
         minSdk = 24
-        targetSdk = 34
+        targetSdk = 36  // Updated
         versionCode = 1
         versionName = "1.0"
     }
@@ -37,16 +38,8 @@ android {
 }
 
 dependencies {
-    // Agora RTC SDK for Voice & Video Calls
-
     // Firebase
-    implementation(platform("com.google.firebase:firebase-bom:32.7.0"))
-    implementation("com.google.firebase:firebase-database-ktx")
-
-    // Firebase BoM - Ensures all Firebase libraries are compatible
     implementation(platform("com.google.firebase:firebase-bom:33.5.1"))
-
-    // Firebase modules (NO versions needed when using BoM!)
     implementation("com.google.firebase:firebase-auth-ktx")
     implementation("com.google.firebase:firebase-firestore-ktx")
     implementation("com.google.firebase:firebase-database-ktx")
@@ -58,18 +51,19 @@ dependencies {
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
-    implementation("androidx.activity:activity-ktx:1.8.2")
+    implementation("androidx.activity:activity-ktx:1.11.0")  // Matches compileSdk 36
+
+    // Room Database
+    val room_version = "2.6.1"
+    implementation("androidx.room:room-runtime:$room_version")
+    implementation("androidx.room:room-ktx:$room_version")
+    kapt("androidx.room:room-compiler:$room_version")
 
     // Material Design
     implementation("com.google.android.material:material:1.11.0")
-    implementation(libs.firebase.auth)
-    implementation(libs.androidx.credentials)
-    implementation(libs.androidx.credentials.play.services.auth)
-    implementation(libs.googleid)
-    implementation(libs.firebase.database)
+
+    // Other libraries
+    implementation("com.google.code.gson:gson:2.10.1")
     implementation("com.squareup.okhttp3:okhttp:4.10.0")
-    implementation(libs.volley)
-
-    // Image Loading (if you need it for profile pictures)
-
+    implementation("com.android.volley:volley:1.2.1")
 }

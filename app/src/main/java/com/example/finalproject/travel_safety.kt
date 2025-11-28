@@ -5,13 +5,16 @@ import android.util.Log
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.android.volley.Request.Method.*
-import com.android.volley.Response
 import com.android.volley.toolbox.JsonObjectRequest
-import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
+import com.example.finalproject.repository.AlertRepository
+import com.example.finalproject.utils.NetworkUtils
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
+import com.google.gson.Gson
+import kotlinx.coroutines.launch
 import org.json.JSONObject
 
 class travel_safety : AppCompatActivity() {
@@ -30,6 +33,10 @@ class travel_safety : AppCompatActivity() {
     private var finishData: FinishData? = null
     private val userId = FirebaseAuth.getInstance().currentUser?.uid ?: "unknown_user"
 
+    // Offline storage
+    private lateinit var alertRepository: AlertRepository
+    private val gson = Gson()
+
     // Email tracking
     private var emailsSent = 0
     private var emailsFailed = 0
@@ -38,10 +45,10 @@ class travel_safety : AppCompatActivity() {
     // Get sender email from logged in user
     private val SENDER_EMAIL = FirebaseAuth.getInstance().currentUser?.email ?: "noreply@safeme.com"
 
-    // EmailJS credentials (replace with your real values)
+    // EmailJS credentials
     private val EMAILJS_SERVICE_ID = "service_7c31t4s"
     private val EMAILJS_TEMPLATE_ID = "template_6woyk8b"
-    private val EMAILJS_PUBLIC_KEY = "z0XPnqySWvklrNwlF" // user_id / public key
+    private val EMAILJS_PUBLIC_KEY = "z0XPnqySWvklrNwlF"
 
     companion object {
         private const val TAG = "TravelSafety"
@@ -50,6 +57,9 @@ class travel_safety : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.travel_safety)
+
+        // Initialize repository
+        alertRepository = AlertRepository(this)
 
         initializeViews()
         setupClickListeners()
@@ -100,7 +110,7 @@ class travel_safety : AppCompatActivity() {
                         Log.d(TAG, "Loaded contact: ${it.fullName}, Email: ${it.email}")
                     }
                 }
-                // Sort by priority: High -> Medium -> Low
+
                 contactsList.sortWith(compareBy {
                     when (it.priorityLevel) {
                         "High" -> 1
@@ -209,51 +219,71 @@ class travel_safety : AppCompatActivity() {
     }
 
     private fun sendEmergencyAlert() {
-        if (contactsList.isEmpty()) {
-            Toast.makeText(this, "No emergency contacts available. Please add contacts first.", Toast.LENGTH_LONG).show()
-            return
-        }
-
-        // Validate contacts have emails
         val contactsWithEmail = contactsList.filter { !it.email.isNullOrBlank() }
 
         if (contactsWithEmail.isEmpty()) {
-            Toast.makeText(this, "No contacts have email addresses! Please add email addresses to your contacts.", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "No contacts with email found.", Toast.LENGTH_LONG).show()
             return
         }
 
-        // Show progress UI
         showProgress()
-
-        // Disable button to prevent multiple clicks
         btnSendAlert.isEnabled = false
         btnSendAlert.alpha = 0.5f
 
-        val additionalMessage = etAdditionalMessage.text.toString().trim()
-        val alertMessage = buildAlertMessage(additionalMessage)
+        val message = buildAlertMessage(etAdditionalMessage.text.toString())
 
-        // Save alert in Firebase
-        saveAlertToFirebase(alertMessage)
-
-        // Reset counters
-        emailsSent = 0
-        emailsFailed = 0
-        totalEmailsToSend = contactsWithEmail.size
-
-        Log.d(TAG, "Sending alerts to ${contactsWithEmail.size} contacts")
-        updateProgress(0, totalEmailsToSend)
-
-        // Send emails (using EmailJS)
-        // If you send many emails, consider spacing them out to avoid provider limits.
-        for ((index, contact) in contactsWithEmail.withIndex()) {
-            contact.email?.let { email ->
-                // Optional: stagger requests slightly to avoid rate limits:
-                // Handler(Looper.getMainLooper()).postDelayed({ sendEmail(email, contact.fullName, alertMessage) }, index * 250L)
-                sendEmail(email, contact.fullName, alertMessage)
-            }
+        // Save alert to local DB or Firebase based on connectivity
+        lifecycleScope.launch {
+            saveAlertToStorage(message, contactsWithEmail)
         }
 
-        Toast.makeText(this, "Sending alerts to ${contactsWithEmail.size} contacts...", Toast.LENGTH_SHORT).show()
+        // Only try to send emails if online
+        if (NetworkUtils.isNetworkAvailable(this)) {
+            emailsSent = 0
+            emailsFailed = 0
+            totalEmailsToSend = contactsWithEmail.size
+
+            for (contact in contactsWithEmail) {
+                sendEmail(contact.email!!, contact.fullName, message)
+            }
+        } else {
+            // Offline mode - just save locally
+            tvProgressStatus.text = "Alert saved locally (offline)"
+            Toast.makeText(this, "No internet. Alert saved locally and will sync when online.", Toast.LENGTH_LONG).show()
+
+            btnSendAlert.postDelayed({
+                hideProgress()
+                finish()
+            }, 2000)
+        }
+    }
+
+    private suspend fun saveAlertToStorage(message: String, contacts: List<EmergencyContact>) {
+        val contactsJson = gson.toJson(contacts.map {
+            hashMapOf(
+                "name" to it.fullName,
+                "phone" to it.phoneNumber,
+                "email" to (it.email ?: ""),
+                "priority" to it.priorityLevel
+            )
+        })
+
+        val result = alertRepository.saveAlert(
+            userId = userId,
+            userEmail = SENDER_EMAIL,
+            type = "Travel Emergency",
+            message = message,
+            additionalMessage = etAdditionalMessage.text.toString(),
+            contactsJson = contactsJson,
+            contactsNotified = contacts.size,
+            location = "Current location"
+        )
+
+        result.onSuccess {
+            Log.d(TAG, "Alert saved: ${it}")
+        }.onFailure {
+            Log.e(TAG, "Failed to save alert", it)
+        }
     }
 
     private fun showProgress() {
@@ -293,36 +323,6 @@ class travel_safety : AppCompatActivity() {
         return sb.toString()
     }
 
-    private fun saveAlertToFirebase(message: String) {
-        val alertData = hashMapOf(
-            "userId" to userId,
-            "userEmail" to SENDER_EMAIL,
-            "type" to "Travel Emergency",
-            "message" to message,
-            "additionalMessage" to etAdditionalMessage.text.toString(),
-            "timestamp" to System.currentTimeMillis(),
-            "contactsNotified" to contactsList.size,
-            "contacts" to contactsList.map {
-                hashMapOf(
-                    "name" to it.fullName,
-                    "phone" to it.phoneNumber,
-                    "email" to (it.email ?: ""),
-                    "priority" to it.priorityLevel
-                )
-            }
-        )
-
-        FirebaseDatabase.getInstance()
-            .getReference("emergency_alerts")
-            .push()
-            .setValue(alertData)
-            .addOnSuccessListener { Log.d(TAG, "Alert saved to Firebase successfully") }
-            .addOnFailureListener { e ->
-                Log.e(TAG, "Failed to save alert to Firebase", e)
-                Toast.makeText(this, "Failed to log alert: ${e.message}", Toast.LENGTH_SHORT).show()
-            }
-    }
-
     private fun sendEmail(toEmail: String, contactName: String, message: String) {
         val url = "https://api.emailjs.com/api/v1.0/email/send"
 
@@ -348,7 +348,7 @@ class travel_safety : AppCompatActivity() {
                 emailsFailed++
                 updateProgress(emailsSent + emailsFailed, totalEmailsToSend)
                 checkIfAllEmailsSent()
-                Log.e("EmailJS", "Error sending email: ${error.message}")
+                Log.e(TAG, "Error sending email: ${error.message}")
             }
         ) {
             override fun getHeaders(): MutableMap<String, String> {
@@ -362,8 +362,6 @@ class travel_safety : AppCompatActivity() {
 
         Volley.newRequestQueue(this).add(request)
     }
-
-
 
     private fun checkIfAllEmailsSent() {
         if (emailsSent + emailsFailed >= totalEmailsToSend) {
@@ -388,7 +386,6 @@ class travel_safety : AppCompatActivity() {
                 Toast.makeText(this, message, Toast.LENGTH_LONG).show()
                 Log.d(TAG, "Email sending complete: $message")
 
-                // Hide progress and finish after delay
                 btnSendAlert.postDelayed({
                     hideProgress()
                     if (emailsSent > 0) finish()
