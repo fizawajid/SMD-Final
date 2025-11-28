@@ -2,11 +2,17 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- Internet Permissions -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" /> <!-- Optional: for location features -->
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+
+    <!-- Location Permissions -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
+    <!-- Background Location (Optional - only if you need background alerts) -->
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
 
     <application
         android:allowBackup="true"
@@ -16,37 +22,80 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Finalproject">
+        android:theme="@style/Theme.Finalproject"
+        tools:targetApi="31">
+
+        <!-- Google Play Services metadata -->
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+
+        <!-- Activities -->
         <activity
             android:name=".OfflineAlertsActivity"
             android:exported="false" />
         <activity
             android:name=".finishfile"
-            android:exported="false" /> <!-- Launcher Activity -->
+            android:exported="false" />
+
+        <!-- Launcher Activity -->
         <activity
             android:name=".getstarted"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity> <!-- Create account (email) -->
-        <activity android:name=".createaccount_email" /> <!-- Create account (phone) -->
-        <activity android:name=".createaccount_phone" /> <!-- Sign in (email) -->
-        <activity android:name=".signin_email" /> <!-- Dashboard -->
-        <activity android:name=".signin_phone" />
-        <activity android:name=".dashboard" />
-        <activity android:name=".travel_safety" />
-        <activity android:name=".personal_safety" />
-        <activity android:name=".gotosettings" />
-        <activity android:name=".emergency_type" />
-        <activity android:name=".add_emergency_contact" />
-        <activity android:name=".alerthistory" />
-        <activity android:name=".finishpage" />
-        <activity android:name=".medical_safety" />
-        <activity android:name=".otp" />
-        <activity android:name=".emergency_contacts" />
+        </activity>
+
+        <!-- Authentication Activities -->
+        <activity
+            android:name=".createaccount_email"
+            android:exported="false" />
+        <activity
+            android:name=".createaccount_phone"
+            android:exported="false" />
+        <activity
+            android:name=".signin_email"
+            android:exported="false" />
+        <activity
+            android:name=".signin_phone"
+            android:exported="false" />
+        <activity
+            android:name=".otp"
+            android:exported="false" />
+
+        <!-- Main App Activities -->
+        <activity
+            android:name=".dashboard"
+            android:exported="false" />
+        <activity
+            android:name=".travel_safety"
+            android:exported="false" />
+        <activity
+            android:name=".personal_safety"
+            android:exported="false" />
+        <activity
+            android:name=".medical_safety"
+            android:exported="false" />
+        <activity
+            android:name=".gotosettings"
+            android:exported="false" />
+        <activity
+            android:name=".emergency_type"
+            android:exported="false" />
+        <activity
+            android:name=".add_emergency_contact"
+            android:exported="false" />
+        <activity
+            android:name=".emergency_contacts"
+            android:exported="false" />
+        <activity
+            android:name=".alerthistory"
+            android:exported="false" />
+        <activity
+            android:name=".finishpage"
+            android:exported="false" />
     </application>
 
 </manifest>

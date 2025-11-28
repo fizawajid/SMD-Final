@@ -1,20 +1,31 @@
 package com.example.finalproject
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.location.Location
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.*
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.android.volley.Request.Method.POST
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
 import com.example.finalproject.repository.AlertRepository
 import com.example.finalproject.utils.NetworkUtils
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
+import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import org.json.JSONObject
 
 class personal_safety : AppCompatActivity() {
@@ -33,6 +44,11 @@ class personal_safety : AppCompatActivity() {
     private var finishData: FinishData? = null
     private val userId = FirebaseAuth.getInstance().currentUser?.uid ?: "unknown_user"
 
+    // Location
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private var currentLocation: Location? = null
+    private var locationAddress: String = "Location unavailable"
+
     // Offline storage
     private lateinit var alertRepository: AlertRepository
     private val gson = Gson()
@@ -50,19 +66,22 @@ class personal_safety : AppCompatActivity() {
 
     companion object {
         private const val TAG = "PersonalSafety"
+        private const val LOCATION_PERMISSION_REQUEST_CODE = 1001
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.personal_safety)
 
-        // Initialize repository
+        // Initialize repository and location client
         alertRepository = AlertRepository(this)
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         initializeViews()
         setupClickListeners()
         loadFinishData()
         loadEmergencyContacts()
+        checkLocationPermission()
     }
 
     private fun initializeViews() {
@@ -80,6 +99,121 @@ class personal_safety : AppCompatActivity() {
     private fun setupClickListeners() {
         btnBack.setOnClickListener { finish() }
         btnSendAlert.setOnClickListener { sendEmergencyAlert() }
+    }
+
+    private fun checkLocationPermission() {
+        when {
+            ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED -> {
+                // Permission granted, get location
+                getCurrentLocation()
+            }
+            shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION) -> {
+                // Show explanation dialog
+                AlertDialog.Builder(this)
+                    .setTitle("Location Permission Required")
+                    .setMessage("This app needs location access to send your current location in emergency alerts.")
+                    .setPositiveButton("Grant") { _, _ ->
+                        requestLocationPermission()
+                    }
+                    .setNegativeButton("Cancel", null)
+                    .show()
+            }
+            else -> {
+                // Request permission
+                requestLocationPermission()
+            }
+        }
+    }
+
+    private fun requestLocationPermission() {
+        ActivityCompat.requestPermissions(
+            this,
+            arrayOf(
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ),
+            LOCATION_PERMISSION_REQUEST_CODE
+        )
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                getCurrentLocation()
+            } else {
+                Toast.makeText(
+                    this,
+                    "Location permission denied. Alerts will be sent without location.",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
+    }
+
+    private fun getCurrentLocation() {
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            return
+        }
+
+        try {
+            val cancellationTokenSource = CancellationTokenSource()
+
+            fusedLocationClient.getCurrentLocation(
+                Priority.PRIORITY_HIGH_ACCURACY,
+                cancellationTokenSource.token
+            ).addOnSuccessListener { location ->
+                if (location != null) {
+                    currentLocation = location
+                    locationAddress = "Lat: ${location.latitude}, Lng: ${location.longitude}"
+                    Log.d(TAG, "Location obtained: $locationAddress")
+
+                    // Optionally reverse geocode to get address
+                    reverseGeocodeLocation(location)
+                }
+            }.addOnFailureListener { e ->
+                Log.e(TAG, "Failed to get location", e)
+                Toast.makeText(this, "Unable to get current location", Toast.LENGTH_SHORT).show()
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Location error", e)
+        }
+    }
+
+    private fun reverseGeocodeLocation(location: Location) {
+        try {
+            val geocoder = android.location.Geocoder(this, java.util.Locale.getDefault())
+            val addresses = geocoder.getFromLocation(location.latitude, location.longitude, 1)
+
+            if (!addresses.isNullOrEmpty()) {
+                val address = addresses[0]
+                locationAddress = buildString {
+                    address.getAddressLine(0)?.let { append(it) }
+                }
+                Log.d(TAG, "Address: $locationAddress")
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Geocoding failed", e)
+            // Keep using coordinates if geocoding fails
+        }
+    }
+
+    private fun getGoogleMapsLink(): String {
+        return currentLocation?.let {
+            "https://www.google.com/maps?q=${it.latitude},${it.longitude}"
+        } ?: "Location unavailable"
     }
 
     private fun loadFinishData() {
@@ -214,6 +348,15 @@ class personal_safety : AppCompatActivity() {
             return
         }
 
+        // Refresh location before sending
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            getCurrentLocation()
+        }
+
         showProgress()
         btnSendAlert.isEnabled = false
         btnSendAlert.alpha = 0.5f
@@ -256,6 +399,10 @@ class personal_safety : AppCompatActivity() {
             )
         })
 
+        val locationString = currentLocation?.let {
+            "$locationAddress (${it.latitude}, ${it.longitude})"
+        } ?: "Location unavailable"
+
         val result = alertRepository.saveAlert(
             userId = userId,
             userEmail = SENDER_EMAIL,
@@ -264,11 +411,11 @@ class personal_safety : AppCompatActivity() {
             additionalMessage = etAdditionalMessage.text.toString(),
             contactsJson = contactsJson,
             contactsNotified = contacts.size,
-            location = "Current location" // You can add actual location here
+            location = locationString
         )
 
         result.onSuccess {
-            Log.d(TAG, "Alert saved: ${it}")
+            Log.d(TAG, "Alert saved: $it")
         }.onFailure {
             Log.e(TAG, "Failed to save alert", it)
         }
@@ -296,7 +443,17 @@ class personal_safety : AppCompatActivity() {
         val sb = StringBuilder()
         sb.append("🚨 PERSONAL SAFETY ALERT 🚨\n\n")
         sb.append("From: $SENDER_EMAIL\n")
-        sb.append("Time: ${java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(java.util.Date())}\n\n")
+        sb.append("Time: ${java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.getDefault()).format(java.util.Date())}\n\n")
+
+        // Add location information
+        sb.append("📍 LOCATION:\n")
+        if (currentLocation != null) {
+            sb.append("Address: $locationAddress\n")
+            sb.append("Coordinates: ${currentLocation!!.latitude}, ${currentLocation!!.longitude}\n")
+            sb.append("Google Maps: ${getGoogleMapsLink()}\n\n")
+        } else {
+            sb.append("Location: Unable to determine current location\n\n")
+        }
 
         if (extra.isNotEmpty())
             sb.append("Message: $extra\n\n")
@@ -323,6 +480,12 @@ class personal_safety : AppCompatActivity() {
                 put("to_email", toEmail)
                 put("contact_name", name)
                 put("alert_message", message)
+                // Add separate location fields for better email formatting
+                if (currentLocation != null) {
+                    put("location_address", locationAddress)
+                    put("location_coordinates", "${currentLocation!!.latitude}, ${currentLocation!!.longitude}")
+                    put("google_maps_link", getGoogleMapsLink())
+                }
             })
         }
 
@@ -352,11 +515,7 @@ class personal_safety : AppCompatActivity() {
 
     private fun checkCompletion() {
         if (emailsSent + emailsFailed >= totalEmailsToSend) {
-            tvProgressStatus.text = when {
-                emailsFailed == 0 -> "✓ All alerts sent!"
-                emailsSent == 0 -> "✗ Failed to send alerts"
-                else -> "⚠ Partial: $emailsSent sent, $emailsFailed failed"
-            }
+
 
             btnSendAlert.postDelayed({
                 hideProgress()
