@@ -84,6 +84,10 @@ class AlertRepository(private val context: Context) {
 
                 val id = alertDao.insertAlert(alertEntity)
                 Log.d(TAG, "Alert saved locally: $id (offline mode)")
+
+                // Schedule sync for when internet becomes available
+                scheduleSyncWhenOnline()
+
                 Result.success("Alert saved locally (offline). Will sync when online.")
             }
         } catch (e: Exception) {
@@ -158,6 +162,46 @@ class AlertRepository(private val context: Context) {
             alertDao.incrementSyncAttempts(alert.id, System.currentTimeMillis())
 
             Result.failure(e)
+        }
+    }
+
+    // Sync all pending alerts
+    suspend fun syncAllPendingAlerts(): Result<Int> {
+        return try {
+            if (!NetworkUtils.isNetworkAvailable(context)) {
+                return Result.failure(Exception("No internet connection"))
+            }
+
+            val pendingAlerts = getPendingAlerts()
+
+            if (pendingAlerts.isEmpty()) {
+                return Result.success(0)
+            }
+
+            var successCount = 0
+
+            for (alert in pendingAlerts) {
+                val result = syncAlertToFirebase(alert)
+                if (result.isSuccess) {
+                    successCount++
+                }
+            }
+
+            Log.d(TAG, "Synced $successCount out of ${pendingAlerts.size} alerts")
+            Result.success(successCount)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error syncing all alerts", e)
+            Result.failure(e)
+        }
+    }
+
+    // Schedule sync when online
+    private fun scheduleSyncWhenOnline() {
+        try {
+            com.example.finalproject.AlertSyncWorker.scheduleSync(context)
+            Log.d(TAG, "Scheduled sync worker for when online")
+        } catch (e: Exception) {
+            Log.e(TAG, "Error scheduling sync worker", e)
         }
     }
 

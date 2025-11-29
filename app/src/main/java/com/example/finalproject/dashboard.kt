@@ -2,25 +2,56 @@ package com.example.finalproject
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.widget.ImageView
 import android.widget.Button
+import android.widget.TextView
+import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import com.example.finalproject.repository.AlertRepository
+import com.example.finalproject.SyncInitializer
+import kotlinx.coroutines.launch
 
 class dashboard : AppCompatActivity() {
 
+    private lateinit var alertRepository: AlertRepository
+    private lateinit var tvPendingAlerts: TextView
+    private lateinit var llPendingAlertsIndicator: LinearLayout
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.dashboard)   // your XML file name
+        setContentView(R.layout.dashboard)
 
-        // ImageViews
+        // Initialize repository
+        alertRepository = AlertRepository(this)
+
+        // Initialize views
+        initializeViews()
+        setupClickListeners()
+
+        // Check for pending alerts
+        checkPendingAlerts()
+    }
+
+    private fun initializeViews() {
+        // Existing views
         val settings = findViewById<ImageView>(R.id.setting)
         val history = findViewById<ImageView>(R.id.history)
         val contacts = findViewById<ImageView>(R.id.contacts)
-
-        // Button for Emergency Alert
         val emergencyAlertBtn = findViewById<Button>(R.id.btnEmergencyAlert)
 
-        // Click listeners
+        // You may need to add these to your dashboard.xml layout:
+        // tvPendingAlerts = findViewById(R.id.tvPendingAlerts)
+        // llPendingAlertsIndicator = findViewById(R.id.llPendingAlertsIndicator)
+    }
+
+    private fun setupClickListeners() {
+        val settings = findViewById<ImageView>(R.id.setting)
+        val history = findViewById<ImageView>(R.id.history)
+        val contacts = findViewById<ImageView>(R.id.contacts)
+        val emergencyAlertBtn = findViewById<Button>(R.id.btnEmergencyAlert)
+
         settings.setOnClickListener {
             startActivity(Intent(this, gotosettings::class.java))
         }
@@ -33,9 +64,55 @@ class dashboard : AppCompatActivity() {
             startActivity(Intent(this, emergency_contacts::class.java))
         }
 
-        // 👉 Emergency Alert pressed → go to emergency_type activity
         emergencyAlertBtn.setOnClickListener {
             startActivity(Intent(this, emergency_type::class.java))
         }
+
+        // Add click listener for pending alerts indicator (if exists)
+        try {
+            llPendingAlertsIndicator?.setOnClickListener {
+                startActivity(Intent(this, OfflineAlertsActivity::class.java))
+            }
+        } catch (e: Exception) {
+            // View doesn't exist in layout
+        }
+    }
+
+    private fun checkPendingAlerts() {
+        lifecycleScope.launch {
+            try {
+                val pendingCount = alertRepository.getPendingAlertsCount()
+
+                updatePendingAlertsUI(pendingCount)
+
+                // If there are pending alerts and we're online, trigger sync
+                if (pendingCount > 0 && com.example.finalproject.utils.NetworkUtils.isNetworkAvailable(this@dashboard)) {
+                    SyncInitializer.checkAndSyncNow(this@dashboard)
+                }
+            } catch (e: Exception) {
+                android.util.Log.e("Dashboard", "Error checking pending alerts", e)
+            }
+        }
+    }
+
+    private fun updatePendingAlertsUI(count: Int) {
+        try {
+            if (count > 0) {
+                tvPendingAlerts?.text = "$count alert${if (count != 1) "s" else ""} pending sync"
+                tvPendingAlerts?.visibility = View.VISIBLE
+                llPendingAlertsIndicator?.visibility = View.VISIBLE
+            } else {
+                tvPendingAlerts?.visibility = View.GONE
+                llPendingAlertsIndicator?.visibility = View.GONE
+            }
+        } catch (e: Exception) {
+            // Views don't exist in layout
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Refresh pending alerts count when returning to dashboard
+        checkPendingAlerts()
     }
 }
