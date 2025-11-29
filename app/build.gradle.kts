@@ -61,6 +61,10 @@ dependencies {
     implementation("androidx.activity:activity-ktx:1.8.2")
     implementation(libs.play.services.location)
     implementation(libs.androidx.activity)
+    implementation(libs.firebase.auth)
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services.auth)
+    implementation(libs.googleid)
 
     // Room Database
     val roomVersion = "2.6.1"

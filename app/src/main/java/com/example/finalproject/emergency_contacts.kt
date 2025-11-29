@@ -36,11 +36,9 @@ class emergency_contacts : AppCompatActivity() {
             return
         }
 
-        // Initialize database reference with user-specific path
+        // FIXED: Use the same global path as add_emergency_contact
         database = FirebaseDatabase.getInstance()
             .reference
-            .child("users")
-            .child(currentUser.uid)
             .child("emergency_contacts")
 
         // Initialize views
@@ -92,8 +90,13 @@ class emergency_contacts : AppCompatActivity() {
 
                 for (contactSnapshot in snapshot.children) {
                     val contact = contactSnapshot.getValue(EmergencyContact::class.java)
-                    contact?.let { contactsList.add(it) }
+                    contact?.let {
+                        contactsList.add(it)
+                        android.util.Log.d("EmergencyContacts", "Loaded contact: ${it.fullName}")
+                    }
                 }
+
+                android.util.Log.d("EmergencyContacts", "Total contacts loaded: ${contactsList.size}")
 
                 // Sort by priority: High -> Medium -> Low
                 contactsList.sortWith(compareBy {
@@ -119,6 +122,7 @@ class emergency_contacts : AppCompatActivity() {
             }
 
             override fun onCancelled(error: DatabaseError) {
+                android.util.Log.e("EmergencyContacts", "Failed to load contacts: ${error.message}")
                 Toast.makeText(
                     this@emergency_contacts,
                     "Failed to load contacts: ${error.message}",
@@ -147,6 +151,8 @@ class emergency_contacts : AppCompatActivity() {
             val insertIndex = contactsContainer.childCount - 1
             contactsContainer.addView(contactView, insertIndex)
         }
+
+        android.util.Log.d("EmergencyContacts", "Displayed ${contacts.size} contacts")
     }
 
     private fun createContactView(contact: EmergencyContact, inflater: LayoutInflater): View {
@@ -358,7 +364,7 @@ class emergency_contacts : AppCompatActivity() {
             .setPositiveButton("Delete") { _, _ ->
                 database.child(contact.id).removeValue()
                     .addOnSuccessListener {
-                        Toast.makeText(this, "Contact deleted successfully", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, "✓ Contact deleted successfully", Toast.LENGTH_SHORT).show()
                     }
                     .addOnFailureListener { e ->
                         Toast.makeText(this, "Failed to delete: ${e.message}", Toast.LENGTH_SHORT).show()

@@ -5,13 +5,14 @@ import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.*
 
 class add_emergency_contact : AppCompatActivity() {
 
     private lateinit var database: DatabaseReference
     private lateinit var auth: FirebaseAuth
+
+    // Form fields
     private lateinit var etFullName: EditText
     private lateinit var spinnerRelationship: Spinner
     private lateinit var spinnerPriority: Spinner
@@ -25,6 +26,11 @@ class add_emergency_contact : AppCompatActivity() {
     private lateinit var btnCancel: TextView
     private lateinit var btnAddContact: TextView
     private lateinit var btnBack: ImageButton
+
+    // Contact list display
+    private lateinit var contactsContainer: LinearLayout
+    private lateinit var tvContactCount: TextView
+    private val contactsList = mutableListOf<EmergencyContact>()
 
     // Edit mode variables
     private var isEditMode = false
@@ -46,11 +52,9 @@ class add_emergency_contact : AppCompatActivity() {
             return
         }
 
-        // Initialize database reference with user-specific path
+        // Use the same global path as other activities
         database = FirebaseDatabase.getInstance()
             .reference
-            .child("users")
-            .child(currentUser.uid)
             .child("emergency_contacts")
 
         // Check if we're in edit mode
@@ -61,6 +65,9 @@ class add_emergency_contact : AppCompatActivity() {
         initializeViews()
         setupSpinners()
         setupClickListeners()
+
+        // Load and display existing contacts
+        loadEmergencyContacts()
 
         // Load existing contact data if in edit mode
         if (isEditMode && editContactId != null) {
@@ -83,10 +90,179 @@ class add_emergency_contact : AppCompatActivity() {
         btnAddContact = findViewById(R.id.btn_add_contact)
         btnBack = findViewById(R.id.btn_back)
 
+        // Initialize contact list views (add these to your layout if not present)
+        try {
+            contactsContainer = findViewById(R.id.contactsContainer)
+            tvContactCount = findViewById(R.id.tvContactCount)
+        } catch (e: Exception) {
+            // If these views don't exist in layout, that's okay
+            android.util.Log.w("AddContact", "Contact list views not found in layout")
+        }
+
         // Update button text if in edit mode
         if (isEditMode) {
             btnAddContact.text = "Save Changes"
         }
+    }
+
+    private fun loadEmergencyContacts() {
+        database.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                contactsList.clear()
+
+                for (contactSnapshot in snapshot.children) {
+                    val contact = contactSnapshot.getValue(EmergencyContact::class.java)
+                    contact?.let { contactsList.add(it) }
+                }
+
+                // Sort by priority
+                contactsList.sortWith(compareBy {
+                    when (it.priorityLevel) {
+                        "High" -> 1
+                        "Medium" -> 2
+                        "Low" -> 3
+                        else -> 4
+                    }
+                })
+
+                displayContacts()
+                updateContactCount()
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Toast.makeText(this@add_emergency_contact, "Failed to load contacts: ${error.message}", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
+    private fun displayContacts() {
+        // Check if contactsContainer exists
+        if (!::contactsContainer.isInitialized) return
+
+        contactsContainer.removeAllViews()
+
+        if (contactsList.isEmpty()) {
+            val emptyView = TextView(this).apply {
+                text = "No emergency contacts yet. Add your first contact above."
+                setTextColor(resources.getColor(android.R.color.darker_gray, null))
+                textSize = 14f
+                setPadding(16, 16, 16, 16)
+            }
+            contactsContainer.addView(emptyView)
+            return
+        }
+
+        for (contact in contactsList) {
+            val contactView = createContactView(contact)
+            contactsContainer.addView(contactView)
+        }
+    }
+
+    private fun createContactView(contact: EmergencyContact): View {
+        val contactView = LinearLayout(this).apply {
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                bottomMargin = 16
+                setPadding(12, 12, 12, 12)
+            }
+            orientation = LinearLayout.HORIZONTAL
+            gravity = android.view.Gravity.CENTER_VERTICAL
+            setBackgroundResource(android.R.drawable.dialog_holo_light_frame)
+        }
+
+        // Avatar
+        val imgAvatar = ImageView(this).apply {
+            layoutParams = LinearLayout.LayoutParams(48, 48)
+            setImageResource(getAvatarResource(contact))
+        }
+        contactView.addView(imgAvatar)
+
+        // Content
+        val contentLayout = LinearLayout(this).apply {
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply {
+                marginStart = 12
+            }
+            orientation = LinearLayout.VERTICAL
+        }
+
+        val tvName = TextView(this).apply {
+            text = contact.fullName
+            setTextColor(resources.getColor(android.R.color.black, null))
+            textSize = 16f
+            setTypeface(null, android.graphics.Typeface.BOLD)
+        }
+        contentLayout.addView(tvName)
+
+        val tvPhone = TextView(this).apply {
+            text = "${contact.phoneNumber} • ${contact.priorityLevel} Priority"
+            setTextColor(resources.getColor(android.R.color.darker_gray, null))
+            textSize = 14f
+        }
+        contentLayout.addView(tvPhone)
+
+        if (!contact.email.isNullOrBlank()) {
+            val tvEmail = TextView(this).apply {
+                text = contact.email
+                setTextColor(resources.getColor(android.R.color.darker_gray, null))
+                textSize = 12f
+            }
+            contentLayout.addView(tvEmail)
+        }
+
+        contactView.addView(contentLayout)
+
+        // Delete button
+        val btnDelete = ImageButton(this).apply {
+            layoutParams = LinearLayout.LayoutParams(40, 40)
+            setImageResource(android.R.drawable.ic_menu_delete)
+            setBackgroundColor(resources.getColor(android.R.color.transparent, null))
+            setOnClickListener {
+                deleteContact(contact)
+            }
+        }
+        contactView.addView(btnDelete)
+
+        return contactView
+    }
+
+    private fun getAvatarResource(contact: EmergencyContact): Int {
+        return when {
+            contact.fullName.contains("mom", ignoreCase = true) ||
+                    contact.fullName.contains("mother", ignoreCase = true) ||
+                    contact.relationship.equals("mother", ignoreCase = true) -> android.R.drawable.ic_menu_myplaces
+
+            contact.fullName.contains("dad", ignoreCase = true) ||
+                    contact.fullName.contains("father", ignoreCase = true) ||
+                    contact.relationship.equals("father", ignoreCase = true) -> android.R.drawable.ic_menu_myplaces
+
+            else -> android.R.drawable.ic_menu_myplaces
+        }
+    }
+
+    private fun updateContactCount() {
+        if (!::tvContactCount.isInitialized) return
+
+        val emailCount = contactsList.count { !it.email.isNullOrBlank() }
+        tvContactCount.text = "Total Contacts: ${contactsList.size} ($emailCount with email)"
+    }
+
+    private fun deleteContact(contact: EmergencyContact) {
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle("Delete Contact")
+            .setMessage("Are you sure you want to delete ${contact.fullName}?")
+            .setPositiveButton("Delete") { _, _ ->
+                database.child(contact.id).removeValue()
+                    .addOnSuccessListener {
+                        Toast.makeText(this, "Contact deleted", Toast.LENGTH_SHORT).show()
+                    }
+                    .addOnFailureListener {
+                        Toast.makeText(this, "Failed to delete contact", Toast.LENGTH_SHORT).show()
+                    }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 
     private fun setupSpinners() {
@@ -133,7 +309,7 @@ class add_emergency_contact : AppCompatActivity() {
         }
 
         btnCancel.setOnClickListener {
-            finish()
+            clearForm()
         }
 
         btnAddContact.setOnClickListener {
@@ -143,6 +319,19 @@ class add_emergency_contact : AppCompatActivity() {
                 validateAndSaveContact()
             }
         }
+    }
+
+    private fun clearForm() {
+        etFullName.text.clear()
+        etPhone.text.clear()
+        etEmail.text.clear()
+        etMedicalInfo.text.clear()
+        etNotes.text.clear()
+        spinnerRelationship.setSelection(0)
+        spinnerPriority.setSelection(0)
+        cbSms.isChecked = false
+        cbCall.isChecked = false
+        cbEmail.isChecked = false
     }
 
     private fun loadContactData() {
@@ -229,6 +418,7 @@ class add_emergency_contact : AppCompatActivity() {
 
         // Create contact object
         val contactId = database.push().key ?: return
+
         val contact = EmergencyContact(
             id = contactId,
             fullName = fullName,
@@ -240,7 +430,8 @@ class add_emergency_contact : AppCompatActivity() {
             callEnabled = cbCall.isChecked,
             emailEnabled = cbEmail.isChecked,
             medicalInfo = etMedicalInfo.text.toString().trim(),
-            notes = etNotes.text.toString().trim()
+            notes = etNotes.text.toString().trim(),
+            timestamp = System.currentTimeMillis()
         )
 
         // Save to Firebase
@@ -315,17 +506,25 @@ class add_emergency_contact : AppCompatActivity() {
             .addOnSuccessListener {
                 Toast.makeText(
                     this,
-                    "Emergency contact added successfully",
+                    "✓ Emergency contact added successfully",
                     Toast.LENGTH_SHORT
                 ).show()
-                finish()
+
+                // Log for debugging
+                android.util.Log.d("AddContact", "Contact saved: $contactId at path: emergency_contacts/$contactId")
+
+                // Clear form after successful save
+                clearForm()
             }
             .addOnFailureListener { e ->
                 Toast.makeText(
                     this,
                     "Failed to add contact: ${e.message}",
-                    Toast.LENGTH_SHORT
+                    Toast.LENGTH_LONG
                 ).show()
+
+                // Log error
+                android.util.Log.e("AddContact", "Failed to save contact", e)
             }
     }
 
@@ -334,17 +533,27 @@ class add_emergency_contact : AppCompatActivity() {
             .addOnSuccessListener {
                 Toast.makeText(
                     this,
-                    "Contact updated successfully",
+                    "✓ Contact updated successfully",
                     Toast.LENGTH_SHORT
                 ).show()
-                finish()
+
+                // Log for debugging
+                android.util.Log.d("AddContact", "Contact updated: $contactId")
+
+                clearForm()
+                isEditMode = false
+                editContactId = null
+                btnAddContact.text = "Add Contact"
             }
             .addOnFailureListener { e ->
                 Toast.makeText(
                     this,
                     "Failed to update contact: ${e.message}",
-                    Toast.LENGTH_SHORT
+                    Toast.LENGTH_LONG
                 ).show()
+
+                // Log error
+                android.util.Log.e("AddContact", "Failed to update contact", e)
             }
     }
 }
