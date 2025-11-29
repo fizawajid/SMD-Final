@@ -73,4 +73,7 @@ interface AlertDao {
     
     @Query("SELECT COUNT(*) FROM offline_alerts WHERE userId = :userId")
     suspend fun getUserAlertsCount(userId: String): Int
+
+    @Query("DELETE FROM offline_alerts WHERE id = :id")
+    suspend fun deleteAlertById(id: Int)
 }

@@ -89,6 +89,11 @@ class OfflineAlertsActivity : AppCompatActivity() {
                 resources.getDimensionPixelSize(R.dimen.padding_medium),
                 resources.getDimensionPixelSize(R.dimen.padding_medium)
             )
+            // Long press to show delete option
+            setOnLongClickListener {
+                showDeleteDialog(alert)
+                true
+            }
         }
 
         // Header
@@ -134,6 +139,19 @@ class OfflineAlertsActivity : AppCompatActivity() {
         titleLayout.addView(tvStatus)
 
         headerRow.addView(titleLayout)
+
+        // Delete button
+        val btnDelete = ImageButton(this).apply {
+            layoutParams = LinearLayout.LayoutParams(40, 40)
+            setImageResource(android.R.drawable.ic_menu_delete)
+            setBackgroundColor(resources.getColor(android.R.color.transparent, null))
+            setColorFilter(resources.getColor(android.R.color.holo_red_light, null))
+            setOnClickListener {
+                showDeleteDialog(alert)
+            }
+        }
+        headerRow.addView(btnDelete)
+
         alertView.addView(headerRow)
 
         // Details
@@ -179,6 +197,37 @@ class OfflineAlertsActivity : AppCompatActivity() {
         alertView.addView(tvContacts)
 
         return alertView
+    }
+
+    private fun showDeleteDialog(alert: AlertEntity) {
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle("Delete Alert")
+            .setMessage("Are you sure you want to delete this pending alert?\n\nType: ${alert.type}\nTime: ${formatTimestamp(alert.timestamp)}")
+            .setPositiveButton("Delete") { _, _ ->
+                deleteAlert(alert)
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun deleteAlert(alert: AlertEntity) {
+        lifecycleScope.launch {
+            val result = alertRepository.deleteAlert(alert.id)
+            result.onSuccess {
+                Toast.makeText(
+                    this@OfflineAlertsActivity,
+                    "Alert deleted successfully",
+                    Toast.LENGTH_SHORT
+                ).show()
+                loadOfflineAlerts() // Reload the list
+            }.onFailure {
+                Toast.makeText(
+                    this@OfflineAlertsActivity,
+                    "Failed to delete alert: ${it.message}",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
     }
 
     private fun getAlertIcon(type: String): Int {

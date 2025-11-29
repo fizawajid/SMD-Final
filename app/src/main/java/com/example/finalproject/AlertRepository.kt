@@ -165,4 +165,16 @@ class AlertRepository(private val context: Context) {
     suspend fun getAllAlerts(): List<AlertEntity> {
         return alertDao.getRecentAlerts(100) // Get recent 100 alerts
     }
+
+    // Delete single alert
+    suspend fun deleteAlert(id: Int): Result<Unit> {
+        return try {
+            alertDao.deleteAlertById(id)
+            Log.d(TAG, "Alert deleted: $id")
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error deleting alert: $id", e)
+            Result.failure(e)
+        }
+    }
 }
