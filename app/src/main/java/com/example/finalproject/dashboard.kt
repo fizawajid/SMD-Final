@@ -1,17 +1,25 @@
 package com.example.finalproject
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import android.widget.Button
 import android.widget.TextView
 import android.widget.LinearLayout
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.example.finalproject.repository.AlertRepository
 import com.example.finalproject.SyncInitializer
 import kotlinx.coroutines.launch
+import com.example.finalproject.FcmTokenManager
 
 class dashboard : AppCompatActivity() {
 
@@ -32,6 +40,12 @@ class dashboard : AppCompatActivity() {
 
         // Check for pending alerts
         checkPendingAlerts()
+
+        // ⭐ INITIALIZE FCM TOKEN ⭐
+        FcmTokenManager.initializeFcmToken(this)
+
+        // Request notification permission for Android 13+
+        requestNotificationPermission()
     }
 
     private fun initializeViews() {
@@ -46,6 +60,49 @@ class dashboard : AppCompatActivity() {
         // llPendingAlertsIndicator = findViewById(R.id.llPendingAlertsIndicator)
     }
 
+
+    private fun requestNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                // Request permission
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                    1001
+                )
+            }
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+        when (requestCode) {
+            1001 -> {
+                if (grantResults.isNotEmpty() &&
+                    grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Log.d("Dashboard", "✅ Notification permission granted")
+                    // Re-initialize FCM token now that permission is granted
+                    FcmTokenManager.initializeFcmToken(this)
+                } else {
+                    Log.w("Dashboard", "⚠️ Notification permission denied")
+                    Toast.makeText(
+                        this,
+                        "Please enable notifications to receive emergency alerts",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
+        }
+    }
     private fun setupClickListeners() {
         val settings = findViewById<ImageView>(R.id.setting)
         val history = findViewById<ImageView>(R.id.history)

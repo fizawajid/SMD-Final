@@ -43,6 +43,7 @@ import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import com.example.finalproject.NotificationHelper
 
 class PersonalSafety : AppCompatActivity() {
 
@@ -347,6 +348,49 @@ class PersonalSafety : AppCompatActivity() {
     // Rest of your existing methods (checkLocationPermission, getCurrentLocation, etc.)
     // ... [Keep all your existing location, contact loading, and email sending methods]
 
+//    private fun sendEmergencyAlert() {
+//        val contactsWithEmail = contactsList.filter { !it.email.isNullOrBlank() }
+//
+//        if (contactsWithEmail.isEmpty()) {
+//            Toast.makeText(this, "No contacts with email found.", Toast.LENGTH_LONG).show()
+//            return
+//        }
+//
+//        // Refresh location before sending
+//        if (ActivityCompat.checkSelfPermission(
+//                this,
+//                Manifest.permission.ACCESS_FINE_LOCATION
+//            ) == PackageManager.PERMISSION_GRANTED
+//        ) {
+//            getCurrentLocation()
+//        }
+//
+//        showProgress()
+//        btnSendAlert.isEnabled = false
+//        btnSendAlert.alpha = 0.5f
+//
+//        val message = buildAlertMessage(etAdditionalMessage.text.toString())
+//
+//        // Save alert to local DB or Firebase based on connectivity
+//        lifecycleScope.launch {
+//            saveAlertToStorage(message, contactsWithEmail)
+//        }
+//
+//        // Handle image upload and alert creation
+//        if (NetworkUtils.isNetworkAvailable(this)) {
+//            if (selectedImageBase64 != null) {
+//                // Upload image first, then send emails
+//                uploadImageAndCreateAlert(message, contactsWithEmail)
+//            } else {
+//                // No image, just send emails
+//                sendEmailsToContacts(contactsWithEmail, message)
+//            }
+//        } else {
+//            // Offline mode
+//            handleOfflineAlert(message, contactsWithEmail)
+//        }
+//    }
+
     private fun sendEmergencyAlert() {
         val contactsWithEmail = contactsList.filter { !it.email.isNullOrBlank() }
 
@@ -378,17 +422,69 @@ class PersonalSafety : AppCompatActivity() {
         // Handle image upload and alert creation
         if (NetworkUtils.isNetworkAvailable(this)) {
             if (selectedImageBase64 != null) {
-                // Upload image first, then send emails
+                // Upload image first, then send emails and notifications
                 uploadImageAndCreateAlert(message, contactsWithEmail)
             } else {
-                // No image, just send emails
-                sendEmailsToContacts(contactsWithEmail, message)
+                // No image, send emails and notifications
+                sendEmailsAndNotifications(contactsWithEmail, message)
             }
         } else {
             // Offline mode
             handleOfflineAlert(message, contactsWithEmail)
         }
     }
+
+    private fun sendEmailsAndNotifications(contacts: List<EmergencyContact>, message: String) {
+        emailsSent = 0
+        emailsFailed = 0
+        totalEmailsToSend = contacts.size
+
+        // Get current user info
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        val senderName = currentUser?.displayName ?: currentUser?.email ?: "SafeMe User"
+        val senderEmail = currentUser?.email ?: "unknown@safeme.com"
+
+        // Determine alert type based on activity
+        val alertType = when (this) {
+            is PersonalSafety -> "Personal Safety"
+            is TravelSafety -> "Travel Emergency"
+            is MedicalSafety -> "Medical Emergency"
+            else -> "Emergency"
+        }
+
+        // Send to each contact
+        for (contact in contacts) {
+            // Send email (existing code)
+            sendEmail(contact.email!!, contact.fullName, message)
+
+            // Send push notification (NEW)
+            NotificationHelper.sendEmergencyAlert(
+                context = this,
+                recipientUserId = contact.id, // If you have user ID
+                senderName = senderName,
+                senderEmail = senderEmail,
+                alertType = alertType,
+                message = message,
+                location = locationAddress,
+                latitude = currentLocation?.latitude,
+                longitude = currentLocation?.longitude
+            )
+        }
+
+        // Alternative: Send to all contacts at once
+        NotificationHelper.sendEmergencyAlertToContacts(
+            context = this,
+            contacts = contacts,
+            senderName = senderName,
+            senderEmail = senderEmail,
+            alertType = alertType,
+            message = message,
+            location = locationAddress,
+            latitude = currentLocation?.latitude,
+            longitude = currentLocation?.longitude
+        )
+    }
+
 
     private fun uploadImageAndCreateAlert(message: String, contacts: List<EmergencyContact>) {
         tvProgressStatus.text = "Uploading image..."
@@ -632,7 +728,18 @@ class PersonalSafety : AppCompatActivity() {
     }
 
     private fun loadEmergencyContacts() {
-        database = FirebaseDatabase.getInstance().getReference("emergency_contacts")
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        if (currentUser == null) {
+            Toast.makeText(this, "Please log in first", Toast.LENGTH_SHORT).show()
+            finish()
+            return
+        }
+
+        database = FirebaseDatabase.getInstance()
+            .reference
+            .child("users")
+            .child(currentUser.uid)
+            .child("emergency_contacts")
 
         database.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {

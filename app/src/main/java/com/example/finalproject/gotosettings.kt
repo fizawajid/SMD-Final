@@ -17,6 +17,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
+import com.example.finalproject.FcmTokenManager
 
 class gotosettings : AppCompatActivity() {
 
@@ -137,6 +138,7 @@ class gotosettings : AppCompatActivity() {
                 .clear()
                 .apply()
 
+            FcmTokenManager.deleteFcmToken()
             // Sign out from Firebase
             auth.signOut()
 
