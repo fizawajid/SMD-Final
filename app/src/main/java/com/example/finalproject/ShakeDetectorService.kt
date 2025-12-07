@@ -38,15 +38,13 @@ class ShakeDetectorService : Service(), SensorEventListener {
     private var locationAddress: String = "Location unavailable"
 
     private lateinit var database: DatabaseReference
+    private lateinit var auth: FirebaseAuth
     private val contactsList = mutableListOf<EmergencyContact>()
-    private val userId = FirebaseAuth.getInstance().currentUser?.uid ?: "unknown_user"
-    private val senderEmail = FirebaseAuth.getInstance().currentUser?.email ?: "noreply@safeme.com"
 
     // EmailJS credentials
     private val EMAILJS_SERVICE_ID = "service_7c31t4s"
     private val EMAILJS_TEMPLATE_ID = "template_6woyk8b"
     private val EMAILJS_PUBLIC_KEY = "z0XPnqySWvklrNwlF"
-
 
     // Test broadcast receiver
     private val testReceiver = object : android.content.BroadcastReceiver() {
@@ -85,6 +83,9 @@ class ShakeDetectorService : Service(), SensorEventListener {
         Log.d(TAG, "║  SHAKE DETECTOR SERVICE CREATED!!!    ║")
         Log.d(TAG, "╚════════════════════════════════════════╝")
 
+        // Initialize Firebase Auth
+        auth = FirebaseAuth.getInstance()
+
         createNotificationChannel()
         startForeground(NOTIFICATION_ID, createNotification("Shake detection active"))
 
@@ -95,12 +96,15 @@ class ShakeDetectorService : Service(), SensorEventListener {
         // Load shake sensitivity from preferences
         loadShakeSensitivity()
 
+        // Load emergency contacts from user-specific Firebase path
         loadEmergencyContacts()
 
         // Register test broadcast receiver
         val filter = android.content.IntentFilter("com.example.finalproject.TEST_SHAKE")
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             registerReceiver(testReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
+        } else {
+            registerReceiver(testReceiver, filter)
         }
 
         Log.d(TAG, "Service created and shake detection started with threshold: $shakeThreshold")
@@ -245,6 +249,10 @@ class ShakeDetectorService : Service(), SensorEventListener {
 
         if (contactsWithEmail.isEmpty()) {
             Log.w(TAG, "❌ No contacts with email found")
+            Log.w(TAG, "Total contacts loaded: ${contactsList.size}")
+            contactsList.forEach { contact ->
+                Log.d(TAG, "Contact: ${contact.fullName}, Email: '${contact.email}'")
+            }
             showResultNotification("❌ Alert Failed", "No emergency contacts with email found", false)
             return
         }
@@ -252,7 +260,9 @@ class ShakeDetectorService : Service(), SensorEventListener {
         Log.d(TAG, "📧 Sending to ${contactsWithEmail.size} contacts...")
         showImmediateNotification("📧 Sending Alerts", "Sending to ${contactsWithEmail.size} contacts...")
 
-        val message = buildShakeEmergencyMessage()
+        // Get sender email from Firebase Auth
+        val senderEmail = auth.currentUser?.email ?: "noreply@safeme.com"
+        val message = buildShakeEmergencyMessage(senderEmail)
 
         var emailsSent = 0
         var emailsFailed = 0
@@ -311,7 +321,7 @@ class ShakeDetectorService : Service(), SensorEventListener {
         }, 5000)
     }
 
-    private fun buildShakeEmergencyMessage(): String {
+    private fun buildShakeEmergencyMessage(senderEmail: String): String {
         val sb = StringBuilder()
         sb.append("🚨 SHAKE EMERGENCY ALERT 🚨\n\n")
         sb.append("EMERGENCY DETECTED BY SHAKE!\n\n")
@@ -415,20 +425,50 @@ class ShakeDetectorService : Service(), SensorEventListener {
     }
 
     private fun loadEmergencyContacts() {
-        database = FirebaseDatabase.getInstance().getReference("emergency_contacts")
+        // Get current user
+        val currentUser = auth.currentUser
+
+        if (currentUser == null) {
+            Log.e(TAG, "❌ User not logged in! Cannot load emergency contacts.")
+            return
+        }
+
+        // FIXED: Use the SAME user-specific path as emergency_contacts.kt
+        database = FirebaseDatabase.getInstance()
+            .reference
+            .child("users")
+            .child(currentUser.uid)
+            .child("emergency_contacts")
+
+        Log.d(TAG, "📂 Loading contacts from: users/${currentUser.uid}/emergency_contacts")
 
         database.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 contactsList.clear()
+
+                Log.d(TAG, "📊 Firebase snapshot exists: ${snapshot.exists()}")
+                Log.d(TAG, "📊 Firebase children count: ${snapshot.childrenCount}")
+
                 for (contactSnapshot in snapshot.children) {
                     val contact = contactSnapshot.getValue(EmergencyContact::class.java)
-                    contact?.let { contactsList.add(it) }
+                    contact?.let {
+                        contactsList.add(it)
+                        Log.d(TAG, "✅ Loaded contact: ${it.fullName} (${it.email})")
+                    }
                 }
-                Log.d(TAG, "Loaded ${contactsList.size} emergency contacts")
+
+                Log.d(TAG, "📋 Total contacts loaded: ${contactsList.size}")
+
+                if (contactsList.isEmpty()) {
+                    Log.w(TAG, "⚠️ No emergency contacts found in Firebase!")
+                } else {
+                    val withEmail = contactsList.count { !it.email.isNullOrBlank() }
+                    Log.d(TAG, "📧 Contacts with email: $withEmail/${contactsList.size}")
+                }
             }
 
             override fun onCancelled(error: DatabaseError) {
-                Log.e(TAG, "Failed to load contacts", error.toException())
+                Log.e(TAG, "❌ Failed to load contacts: ${error.message}", error.toException())
             }
         })
     }
@@ -476,19 +516,6 @@ class ShakeDetectorService : Service(), SensorEventListener {
             .setContentIntent(pendingIntent)
             .setOngoing(true)
             .build()
-    }
-
-    private fun showAlertNotification(message: String) {
-        val notification = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("Emergency Alert Sent")
-            .setContentText(message)
-            .setSmallIcon(android.R.drawable.ic_dialog_alert)
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setAutoCancel(true)
-            .build()
-
-        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.notify(NOTIFICATION_ID + 1, notification)
     }
 
     override fun onDestroy() {
